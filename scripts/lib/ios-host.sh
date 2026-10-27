@@ -6,7 +6,7 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 host="$root/test-apps/host"
 # Pod name → its directory under packages/.
 pods=(
-  "ExpoAppleIntelligence:expo-apple-intelligence"
+  "ExpoAppleIntelligence:expo-apple-ml"
   "ExpoMlKit:expo-ml-kit"
   "ExpoImageMlTools:expo-image-ml-tools"
 )
@@ -35,7 +35,7 @@ if [ "${IOS_HOST_MODE:-tests}" = tests ]; then
   for entry in "${pods[@]}"; do
     pod="${entry%%:*}"
     dir="${entry##*:}"
-    excluded+="\"@insidepics/$dir\", "
+    excluded+="\"$dir\", "
     declared+="  pod \"$pod\", :path => \"../../../packages/$dir/ios\", :testspecs => [\"${pod}Tests\"]\\
 "
   done

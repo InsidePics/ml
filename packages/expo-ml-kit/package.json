@@ -1,5 +1,5 @@
 {
-  "name": "@insidepics/expo-ml-kit",
+  "name": "expo-ml-kit",
   "version": "0.1.0",
   "description": "Google ML Kit on-device image analysis (text, labels, barcodes, poses, objects, entities) for Android and iOS, plus ML Kit face detection on Android.",
   "main": "build/index.js",
@@ -48,5 +48,25 @@
   "homepage": "https://github.com/InsidePics/ml/tree/main/packages/expo-ml-kit#readme",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "keywords": [
+    "ml-kit",
+    "mlkit",
+    "google-ml-kit",
+    "expo",
+    "react-native",
+    "android",
+    "ios",
+    "on-device",
+    "ocr",
+    "text-recognition",
+    "image-labeling",
+    "barcode-scanning",
+    "qr-code",
+    "pose-detection",
+    "object-detection",
+    "entity-extraction",
+    "face-detection",
+    "machine-learning"
+  ]
 }

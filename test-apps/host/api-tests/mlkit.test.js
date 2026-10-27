@@ -1,4 +1,4 @@
-import * as MlKit from '@insidepics/expo-ml-kit';
+import * as MlKit from 'expo-ml-kit';
 
 import { load } from './images';
 import { assert, assertEqual, assertRejects, test } from './runner';

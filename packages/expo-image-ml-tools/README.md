@@ -1,4 +1,4 @@
-# @insidepics/expo-image-ml-tools
+# expo-image-ml-tools
 
 Model inputs from an Expo image handle, built natively and identical on
 Android and iOS: tensors, face alignment, sharpness and luminance histograms.
@@ -7,7 +7,7 @@ The photo's pixels never enter JavaScript; only the result does.
 ## Install
 
 ```sh
-npx expo install @insidepics/expo-image-ml-tools expo-image-manipulator
+npx expo install expo-image-ml-tools expo-image-manipulator
 ```
 
 Rebuild the native app afterwards (a development build; not Expo Go).
@@ -21,7 +21,7 @@ import {
   similarityTransform,
   toTensor,
   warp,
-} from '@insidepics/expo-image-ml-tools';
+} from 'expo-image-ml-tools';
 
 const photo = await ImageManipulator.manipulate(uri).renderAsync();
 try {

@@ -1,4 +1,4 @@
-import Apple from '@insidepics/expo-apple-intelligence';
+import Apple from 'expo-apple-ml';
 
 import { load } from './images';
 import { assert, assertEqual, assertRejects, test } from './runner';

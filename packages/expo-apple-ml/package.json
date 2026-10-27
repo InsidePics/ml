@@ -1,7 +1,7 @@
 {
-  "name": "@insidepics/expo-apple-intelligence",
+  "name": "expo-apple-ml",
   "version": "0.4.0",
-  "description": "Expo module for Apple Intelligence: Vision, Foundation Models, SpeechAnalyzer, ImagePlayground",
+  "description": "Apple Intelligence for Expo and React Native: on-device Apple Vision, Foundation Models (the Apple Intelligence LLM), SpeechAnalyzer and Image Playground, from one decoded image.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -13,24 +13,39 @@
     "test:swift": "swift test"
   },
   "keywords": [
-    "react-native",
-    "expo",
     "apple-intelligence",
-    "machine-learning",
-    "vision-framework",
+    "apple intelligence",
+    "expo",
+    "react-native",
+    "ios",
+    "on-device-ai",
+    "on-device",
     "foundation-models",
+    "apple-foundation-models",
+    "llm",
+    "vision",
+    "vision-framework",
+    "ocr",
+    "face-detection",
+    "image-classification",
+    "barcode",
+    "speech-to-text",
     "speech-analyzer",
-    "image-playground"
+    "transcription",
+    "image-playground",
+    "image-generation",
+    "machine-learning",
+    "coreml"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/InsidePics/ml.git",
-    "directory": "packages/expo-apple-intelligence"
+    "directory": "packages/expo-apple-ml"
   },
   "bugs": "https://github.com/InsidePics/ml/issues",
   "author": "INSP LLC",
   "license": "MIT",
-  "homepage": "https://github.com/InsidePics/ml/tree/main/packages/expo-apple-intelligence#readme",
+  "homepage": "https://github.com/InsidePics/ml/tree/main/packages/expo-apple-ml#readme",
   "publishConfig": {
     "access": "public"
   },

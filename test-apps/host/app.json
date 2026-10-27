@@ -8,6 +8,6 @@
     "android": {
       "package": "com.insidepics.mltesthost"
     },
-    "plugins": ["@insidepics/expo-ml-kit"]
+    "plugins": ["expo-ml-kit"]
   }
 }

@@ -6,7 +6,7 @@ import UIKit
 /// `recognizeText`, `extractEntities` and `detectFaces` Android's
 /// `ExpoMlKitModule.kt` serves, in one shape, so a caller handles both
 /// platforms alike. On iOS, live barcodes are Apple Vision's job
-/// (`expo-apple-intelligence`), so this module has no `detectBarcodes` here.
+/// (`expo-apple-ml`), so this module has no `detectBarcodes` here.
 ///
 /// Google ships no Apple Silicon simulator build of ML Kit: on a simulator
 /// the ML Kit code is compiled out (and unlinked by the config plugin), and

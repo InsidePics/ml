@@ -4,7 +4,7 @@
 # the Expo module plugin resolves:
 #
 #   pnpm test:android [adb-serial]          (the only device when omitted)
-#   ONLY=insidepics-expo-ml-kit pnpm test:android …   (one package; not a gate run)
+#   ONLY=expo-ml-kit pnpm test:android …   (one package; not a gate run)
 #
 # Each package's suite is its own test APK, with the repository's fixtures as
 # assets. On success the result lands in .device-results/android-<sha>.json,
@@ -20,7 +20,7 @@ set -euo pipefail
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 [ -z "${1:-}" ] || export ANDROID_SERIAL="$1"
 device="${ANDROID_SERIAL:-$("$ANDROID_HOME/platform-tools/adb" get-serialno)}"
-projects=(insidepics-expo-image-ml-tools insidepics-expo-ml-kit)
+projects=(expo-image-ml-tools expo-ml-kit)
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 host="$root/test-apps/host"
@@ -34,7 +34,7 @@ dirty="$(git -C "$root" status --porcelain | wc -l | tr -d ' ')"
 status=0
 for project in "${projects[@]}"; do
   [ -z "${ONLY:-}" ] || [ "$ONLY" = "$project" ] || continue
-  rm -rf "$root/packages/${project#insidepics-}/android/build/outputs/androidTest-results"
+  rm -rf "$root/packages/$project/android/build/outputs/androidTest-results"
   (cd android && ./gradlew --no-daemon -q ":$project:connectedDebugAndroidTest") || status=1
 done
 

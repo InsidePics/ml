@@ -8,7 +8,7 @@ import XCTest
 /// the same photo apart; on any Apple device this suite does the same
 /// against the Mac's decode it was recorded from. Recorded on a Mac:
 ///
-///   RECORD_FIXTURE=1 pnpm --filter @insidepics/expo-image-ml-tools test:swift
+///   RECORD_FIXTURE=1 pnpm --filter expo-image-ml-tools test:swift
 final class DecodeGridTests: XCTestCase {
   static let side = 16
   // The decoders differ by a little even between a Mac and an iPhone (an

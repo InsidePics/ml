@@ -1,13 +1,14 @@
 # InsidePics ML
 
-On-device machine learning for Expo apps: small native modules that share
-one decoded image.
+On-device machine learning for Expo and React Native apps: Apple
+Intelligence and Apple Vision, Google ML Kit, and the model-input tools
+between them, as small native modules that share one decoded image.
 
-| Package                                                                   | What                                                                       | Platforms             |
-| ------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------- |
-| [`@insidepics/expo-apple-intelligence`](packages/expo-apple-intelligence) | Apple Vision, Foundation Models, SpeechAnalyzer, Image Playground          | iOS                   |
-| [`@insidepics/expo-ml-kit`](packages/expo-ml-kit)                         | Google ML Kit: text, labels, barcodes, poses, objects, entities, faces     | Android, iOS (device) |
-| [`@insidepics/expo-image-ml-tools`](packages/expo-image-ml-tools)         | Model inputs from an image: tensors, face alignment, sharpness, histograms | Android, iOS          |
+| Package                                               | What                                                                                  | Platforms             |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------- |
+| [`expo-apple-ml`](packages/expo-apple-ml)             | Apple Intelligence: Foundation Models, Apple Vision, SpeechAnalyzer, Image Playground | iOS                   |
+| [`expo-ml-kit`](packages/expo-ml-kit)                 | Google ML Kit: text, labels, barcodes, poses, objects, entities, faces                | Android, iOS (device) |
+| [`expo-image-ml-tools`](packages/expo-image-ml-tools) | Model inputs from an image: tensors, face alignment, sharpness, histograms            | Android, iOS          |
 
 ## One image, every model
 
@@ -17,8 +18,8 @@ model; the pixels stay native and never cross into JavaScript:
 
 ```ts
 import { ImageManipulator } from 'expo-image-manipulator';
-import * as MlKit from '@insidepics/expo-ml-kit';
-import { toTensor } from '@insidepics/expo-image-ml-tools';
+import * as MlKit from 'expo-ml-kit';
+import { toTensor } from 'expo-image-ml-tools';
 
 const photo = await ImageManipulator.manipulate(uri).renderAsync();
 try {
@@ -81,10 +82,10 @@ cd packages/<package> && CI=1 pnpm build && npm publish
 Then, on npmjs.com, the package's Settings → Trusted Publisher: GitHub
 Actions, repository `InsidePics/ml`, workflow `publish.yml`.
 
-**`@insidepics/expo-apple-intelligence`** came from the archived
-`InsidePics/expo-apple-intelligence` repository (0.1.0–0.3.1). From 0.4.0 it is
-built here: its `repository` and podspec `source` name this repository, and
-its npm trusted publisher names `InsidePics/ml` / `publish.yml`.
+**`expo-apple-ml`** was `@insidepics/expo-apple-intelligence` (0.1.0–0.3.1),
+published from the archived `InsidePics/expo-apple-intelligence` repository.
+From 0.4.0 it is built here under its new name; the old package is
+deprecated with a pointer to this one.
 
 ## Fixtures
 

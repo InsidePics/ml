@@ -2,7 +2,7 @@
 # Runs the pure-Kotlin JUnit tests (ImageMath) on a plain JVM — no Android SDK
 # or gradle — against the shared reference iOS checks too:
 #
-#   pnpm --filter @insidepics/expo-image-ml-tools test:kotlin
+#   pnpm --filter expo-image-ml-tools test:kotlin
 #
 # Requires kotlinc (brew install kotlin) and a JVM; JUnit comes from the
 # repository's scripts/lib/kotlin-jvm-test.sh.
