@@ -1,6 +1,6 @@
 {
   "name": "expo-apple-ml",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Apple Intelligence for Expo and React Native: on-device Apple Vision, Foundation Models (the Apple Intelligence LLM), SpeechAnalyzer and Image Playground, from one decoded image.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
