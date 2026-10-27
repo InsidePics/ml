@@ -1,6 +1,6 @@
 {
   "name": "expo-image-ml-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Model inputs from an Expo image handle: tensors, warps, sharpness and histograms, identical on iOS and Android.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
