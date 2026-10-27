@@ -42,6 +42,7 @@
   "devDependencies": {
     "expo": "^57.0.31",
     "expo-module-scripts": "^56.0.3",
-    "react-native": "^0.87.1"
-  }
+    "react-native": "^0.86.3"
+  },
+  "react-native": "src/index.ts"
 }

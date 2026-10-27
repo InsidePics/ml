@@ -20,47 +20,13 @@ else
   team="${2:?usage: $0 <device-udid> <team-id> | --build-only}"
 fi
 
-root="$(cd "$(dirname "$0")/.." && pwd)"
-host="$root/test-apps/host"
-# Pod name → its directory under packages/.
-pods=(
-  "ExpoAppleIntelligence:expo-apple-intelligence"
-  "ExpoMlKit:expo-ml-kit"
-  "ExpoImageMlTools:expo-image-ml-tools"
-)
-
-# CocoaPods bundles no resource from outside a pod or through a link: copy
-# the fixtures into each pod's Tests/Fixtures (git-ignored) first.
-for entry in "${pods[@]}"; do
-  dir="${entry##*:}"
-  rm -rf "$root/packages/$dir/ios/Tests/Fixtures"
-  cp -R "$root/fixtures" "$root/packages/$dir/ios/Tests/Fixtures"
-done
-
-cd "$host"
-[ -d ios ] || CI=1 pnpm exec expo prebuild -p ios --no-install
-
-excluded=""
-declared=""
-for entry in "${pods[@]}"; do
-  pod="${entry%%:*}"
-  dir="${entry##*:}"
-  excluded+="\"@insidepics/$dir\", "
-  declared+="  pod \"$pod\", :path => \"../../../packages/$dir/ios\", :testspecs => [\"${pod}Tests\"]\\
-"
-done
-# From prebuild's Podfile every run, so the edit never stacks.
-[ -f ios/Podfile.prebuild ] || cp ios/Podfile ios/Podfile.prebuild
-cp ios/Podfile.prebuild ios/Podfile
-sed -i '' -E "s|^  use_expo_modules!.*$|  use_expo_modules!(exclude: [${excluded%, }])\\
-${declared}|" ios/Podfile
-(cd ios && pod install)
+source "$(dirname "$0")/lib/ios-host.sh"
 
 if [ $build_only = 1 ]; then
   for entry in "${pods[@]}"; do
     pod="${entry%%:*}"
     xcodebuild build-for-testing -quiet \
-      -workspace ios/mltesthost.xcworkspace \
+      -workspace ios/MLTestHost.xcworkspace \
       -scheme "$pod-Unit-${pod}Tests" \
       -destination generic/platform=iOS \
       CODE_SIGNING_ALLOWED=NO
@@ -81,7 +47,7 @@ for entry in "${pods[@]}"; do
   rm -rf "$bundle"
   # Pods are built unsigned; a bundle loaded on a device must be signed.
   if ! xcodebuild test \
-    -workspace ios/mltesthost.xcworkspace \
+    -workspace ios/MLTestHost.xcworkspace \
     -scheme "$pod-Unit-${pod}Tests" \
     -destination "id=$udid" \
     -resultBundlePath "$bundle" \

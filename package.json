@@ -13,7 +13,9 @@
     "test:swift": "pnpm -r run test:swift",
     "gate": "pnpm lines && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:kotlin && pnpm test:swift",
     "test:device:ios": "bash scripts/test-device-ios.sh",
-    "build:ios": "bash scripts/test-device-ios.sh --build-only"
+    "build:ios": "bash scripts/test-device-ios.sh --build-only",
+    "test:api:ios": "bash scripts/test-api-ios.sh",
+    "test:api:android": "bash scripts/test-api-android.sh"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

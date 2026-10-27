@@ -2,7 +2,14 @@
   "expo": {
     "name": "ML Test Host",
     "slug": "ml-test-host",
-    "ios": { "bundleIdentifier": "com.insidepics.mltesthost" },
-    "android": { "package": "com.insidepics.mltesthost" }
+    "ios": {
+      "bundleIdentifier": "com.insidepics.mltesthost"
+    },
+    "android": {
+      "package": "com.insidepics.mltesthost"
+    },
+    "plugins": [
+      "@insidepics/expo-ml-kit"
+    ]
   }
 }

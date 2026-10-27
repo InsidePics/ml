@@ -4,7 +4,7 @@ import fs from 'fs';
 import withMlKitSimulator, {
   applyMlKitSimulatorHook,
   patchPodfile,
-} from '../withMlKitSimulator';
+} from '../withMlKitSimulator.cjs';
 
 const PODFILE =
   "target 'App' do\n  post_install do |installer|\n    react_native_post_install(installer)\n  end\nend\n";
