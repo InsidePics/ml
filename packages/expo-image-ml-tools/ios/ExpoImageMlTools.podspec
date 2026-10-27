@@ -24,7 +24,8 @@ Pod::Spec.new do |s|
 
   s.test_spec 'ExpoImageMlToolsTests' do |test_spec|
     test_spec.source_files = 'Tests/**/*.swift'
-    # The repository's shared fixtures (Tests/Fixtures links to them).
+    # The repository's fixtures/, copied here by scripts/test-device-ios.sh:
+    # CocoaPods takes no resource from outside the pod or through a link.
     test_spec.resources = 'Tests/Fixtures/**/*'
     test_spec.frameworks = 'XCTest'
     # ExpoModulesCore pulls in React Native's C++ codegen.

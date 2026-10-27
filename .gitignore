@@ -15,3 +15,5 @@ test-apps/*/android/
 .device-results/
 .build/
 .swiftpm/
+# Copied from fixtures/ by scripts/test-device-ios.sh for CocoaPods.
+packages/*/ios/Tests/Fixtures/

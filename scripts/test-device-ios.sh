@@ -29,6 +29,14 @@ pods=(
   "ExpoImageMlTools:expo-image-ml-tools"
 )
 
+# CocoaPods bundles no resource from outside a pod or through a link: copy
+# the fixtures into each pod's Tests/Fixtures (git-ignored) first.
+for entry in "${pods[@]}"; do
+  dir="${entry##*:}"
+  rm -rf "$root/packages/$dir/ios/Tests/Fixtures"
+  cp -R "$root/fixtures" "$root/packages/$dir/ios/Tests/Fixtures"
+done
+
 cd "$host"
 [ -d ios ] || CI=1 pnpm exec expo prebuild -p ios --no-install
 

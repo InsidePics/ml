@@ -47,7 +47,7 @@ final class CrossDetectorTests: MlKitTestCase {
     let (cgImage, _, _) = try XCTUnwrap(VisionHelpers.loadImage(path), name)
     let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
     let apple = try VisionProcessors.detectFaces(handler)
-    let mlKit = try FaceAnalyzer.detect(image(name))
+    let mlKit = try detectFaces(name)
     XCTAssertEqual(apple.count, 1, "\(name): Apple faces")
     XCTAssertEqual(mlKit.count, 1, "\(name): ML Kit faces")
     return (try XCTUnwrap(apple.first), try XCTUnwrap(mlKit.first))

@@ -11,7 +11,6 @@ let package = Package(
       name: "ExpoImageMlTools", path: "ios",
       exclude: ["ExpoImageMlToolsModule.swift", "ExpoImageMlTools.podspec", "Tests"]),
     .testTarget(
-      name: "ExpoImageMlToolsTests", dependencies: ["ExpoImageMlTools"], path: "ios/Tests",
-      resources: [.copy("Fixtures")]),
+      name: "ExpoImageMlToolsTests", dependencies: ["ExpoImageMlTools"], path: "ios/Tests"),
   ]
 )

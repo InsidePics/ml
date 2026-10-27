@@ -18,9 +18,36 @@ class MlKitTestCase: XCTestCase {
       file: file, line: line)
   }
 
+  /// `work` on a background queue, as the module runs it: ML Kit refuses
+  /// the main thread, where XCTest runs. The main run loop keeps turning
+  /// meanwhile, so a callback ML Kit delivers on main (a model download)
+  /// still lands.
+  func background<T>(timeout: TimeInterval = 300, _ work: @escaping () throws -> T) throws -> T {
+    var result: Result<T, Error>?
+    let done = expectation(description: "background work")
+    DispatchQueue.global(qos: .userInitiated).async {
+      result = Result { try work() }
+      done.fulfill()
+    }
+    wait(for: [done], timeout: timeout)
+    return try XCTUnwrap(result, "timed out").get()
+  }
+
   /// The fixture as the module's `analyzeImage` returns it, for `models`.
   func analyze(_ name: String, _ models: Set<String>) throws -> [String: Any] {
-    try MlKitAnalyzer.analyze(image(name), models: models)
+    let picture = try image(name)
+    return try background { try MlKitAnalyzer.analyze(picture, models: models) }
+  }
+
+  /// ML Kit's faces in the fixture, as the module's `detectFaces` returns them.
+  func detectFaces(_ name: String) throws -> [[String: Any]] {
+    let picture = try image(name)
+    return try background { try FaceAnalyzer.detect(picture) }
+  }
+
+  /// `scripts`' reads of `picture`, as the module's `recognizeText` returns them.
+  func recognize(_ picture: UIImage, _ scripts: [String]) throws -> [[String: Any]] {
+    try background { try MlKitAnalyzer.recognize(picture, scripts: scripts) }
   }
 
   /// A normalized rect (`x`, `y`, `width`, `height`) inside the unit square.

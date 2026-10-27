@@ -1,25 +1,22 @@
 import Foundation
 
-/// Locates a file of the repository's shared `fixtures/` (each package's
-/// `ios/Tests/Fixtures` links to it, and this file is linked into each
-/// package's tests) under every way the tests run: the SwiftPM package
-/// (`swift test`, where the fixtures are a resource bundle), a CocoaPods test
-/// spec, and a plain checkout as a last resort.
+/// Locates a file of the repository's shared `fixtures/` (this file is linked
+/// into each package's tests) under both ways the tests run: a CocoaPods test
+/// bundle on a device, where the script copied them in as resources, and a
+/// checkout (`swift test` on a Mac), read in place.
 enum FixturePaths {
   private final class Anchor {}
 
   static func path(_ name: String) -> String {
     let base = (name as NSString).deletingPathExtension
     let ext = (name as NSString).pathExtension
-    var bundles = [Bundle(for: Anchor.self)]
-    #if SWIFT_PACKAGE
-    bundles.insert(Bundle.module, at: 0)
-    #endif
-    // A bundled copy may be the link itself, dangling once copied: only a
-    // readable file counts.
+    // A CocoaPods resource lands at the bundle's top level, folders dropped.
+    let file = ((name as NSString).lastPathComponent as NSString).deletingPathExtension
+    let bundles = [Bundle(for: Anchor.self)]
     let bundled = bundles.flatMap {
       [$0.path(forResource: base, ofType: ext, inDirectory: "Fixtures"),
-       $0.path(forResource: base, ofType: ext)]
+       $0.path(forResource: base, ofType: ext),
+       $0.path(forResource: file, ofType: ext)]
     }
     // test-support/ios/FixturePaths.swift → the repository root.
     let root = URL(fileURLWithPath: #filePath).resolvingSymlinksInPath()

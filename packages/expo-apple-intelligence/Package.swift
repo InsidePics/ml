@@ -26,8 +26,7 @@ let package = Package(
     .testTarget(
       name: "ExpoAppleIntelligenceTests",
       dependencies: ["ExpoAppleIntelligence"],
-      path: "ios/Tests",
-      resources: [.copy("Fixtures")]
+      path: "ios/Tests"
     ),
   ]
 )

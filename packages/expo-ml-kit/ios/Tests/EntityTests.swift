@@ -6,7 +6,7 @@ import XCTest
 /// Entity Extraction downloads its English model at first use. The suite
 /// waits for that download, and FAILS if it never lands: an extractor that
 /// silently stays "unknown" is the failure this checks for.
-final class EntityTests: XCTestCase {
+final class EntityTests: MlKitTestCase {
 
   private static let downloadTimeout: TimeInterval = 180
 
@@ -31,20 +31,24 @@ final class EntityTests: XCTestCase {
     XCTAssertEqual(try extractOnceReady("A quiet afternoon by the lake").count, 0)
   }
 
-  func testExtract_answersEmptyForBlankTextWithoutTheModel() {
-    XCTAssertEqual(EntityAnalyzer.extract("  \n "), [])
+  func testExtract_answersEmptyForBlankTextWithoutTheModel() throws {
+    XCTAssertEqual(try background { EntityAnalyzer.extract("  \n ") }, [])
   }
 
-  /// `extract` answers nil while the model is downloading; poll until it
-  /// answers, or fail.
+  /// `extract` answers nil while the model is downloading; poll (off the
+  /// main thread, which delivers the download's callback) until it answers,
+  /// or fail.
   private func extractOnceReady(_ text: String) throws -> [[String: String]] {
-    let deadline = Date().addingTimeInterval(Self.downloadTimeout)
-    while Date() < deadline {
-      if let entities = EntityAnalyzer.extract(text) { return entities }
-      Thread.sleep(forTimeInterval: 2)
+    let found = try background(timeout: Self.downloadTimeout + 30) { () -> [[String: String]]? in
+      let deadline = Date().addingTimeInterval(Self.downloadTimeout)
+      while Date() < deadline {
+        if let entities = EntityAnalyzer.extract(text) { return entities }
+        Thread.sleep(forTimeInterval: 2)
+      }
+      return nil
     }
-    XCTFail("The entity model did not download within \(Int(Self.downloadTimeout)) s (Wi-Fi?)")
-    return []
+    return try XCTUnwrap(
+      found, "The entity model did not download within \(Int(Self.downloadTimeout)) s (Wi-Fi?)")
   }
 }
 #endif
