@@ -27,9 +27,9 @@ export const TEXT_SCRIPTS = [
 ] as const;
 
 /** The recognizers tried after Latin, when its read suggests another
- *  script. One more native call, which decodes the photo again: the price
- *  of deciding here, the same on every platform, and only paid on photos
- *  whose Latin read fails. */
+ *  script. One more native call over the same image: the price of deciding
+ *  here, the same on every platform, and only paid on photos whose Latin
+ *  read fails. */
 export const OTHER_TEXT_SCRIPTS = TEXT_SCRIPTS.slice(1);
 
 /** Scripts written a word or more per character. */

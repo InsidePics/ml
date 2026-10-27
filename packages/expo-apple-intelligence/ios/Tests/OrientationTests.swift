@@ -2,6 +2,9 @@ import ImageIO
 import Vision
 import XCTest
 @testable import ExpoAppleIntelligence
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Camera photos store their pixels in sensor orientation plus an EXIF tag
 /// (an iPhone portrait is landscape pixels + orientation 6). Everything the
@@ -48,36 +51,28 @@ final class OrientationTests: XCTestCase {
 
   // MARK: - Size and pixels
 
-  func testLoadImage_reportsTheUprightSize() throws {
+  func testUpright_turnsEveryHandleUpright() throws {
+    #if canImport(UIKit)
+    let reference = try grey(image("face.jpg"))
     for name in variants {
-      let (image, width, height) = try XCTUnwrap(VisionHelpers.loadImage(FixturePaths.path(name)), name)
-      XCTAssertEqual(Int(width), Self.uprightSize.width, name)
-      XCTAssertEqual(Int(height), Self.uprightSize.height, name)
-      XCTAssertEqual(image.width, Self.uprightSize.width, name)
-      XCTAssertEqual(image.height, Self.uprightSize.height, name)
+      let upright = try image(name)
+      XCTAssertEqual(upright.width, Self.uprightSize.width, name)
+      XCTAssertEqual(upright.height, Self.uprightSize.height, name)
+      // Re-encoding costs a few levels; a turned face differs by tens.
+      XCTAssertLessThan(meanAbsoluteDifference(grey(upright), reference), 12, name)
     }
+    #else
+    throw XCTSkip("A handle is a UIImage: iOS only")
+    #endif
   }
 
-  func testDecodePixels_matchTheUprightPhoto() throws {
-    let reference = try decoded("face.jpg")
-    for name in variants {
-      let pixels = try decoded(name)
-      XCTAssertEqual(pixels.count, reference.count, name)
-      guard pixels.count == reference.count else { continue }
-      // Re-encoding costs a few levels per channel; a rotated or flipped face
-      // differs by tens.
-      XCTAssertLessThan(meanAbsoluteDifference(pixels, reference), 6, name)
-    }
-  }
-
-  func testDecodePixels_upsideDownDiffersFromUpright() throws {
-    // Guards the tolerance above: an upside-down decode of the same face must
-    // fail it, or the pixel test could not tell a rotation from noise.
-    let reference = try decoded("face.jpg")
+  func testUpright_aTurnedImageFailsTheTolerance() throws {
+    // Guards the tolerance above: the stored, unturned pixels of the same
+    // face must fail it, or the test could not tell a rotation from noise.
+    let reference = try grey(XCTUnwrap(fixtureImage("face.jpg")?.0))
     let source = try imageSource("face-orientation-3.jpg")
     let raw = try XCTUnwrap(CGImageSourceCreateImageAtIndex(source, 0, nil))
-    let pixels = try XCTUnwrap(VisionHelpers.decodePixels(raw))
-    XCTAssertGreaterThan(meanAbsoluteDifference([UInt8](pixels), reference), 20)
+    XCTAssertGreaterThan(meanAbsoluteDifference(grey(raw), reference), 20)
   }
 
   // MARK: - Vision geometry
@@ -112,9 +107,30 @@ final class OrientationTests: XCTestCase {
     return try XCTUnwrap(CGImageSourceCreateWithURL(url as CFURL, nil), name)
   }
 
-  private func decoded(_ name: String) throws -> [UInt8] {
-    let (image, _, _) = try XCTUnwrap(VisionHelpers.loadImage(FixturePaths.path(name)), name)
-    return [UInt8](try XCTUnwrap(VisionHelpers.decodePixels(image), name))
+  /// The fixture as the module sees a caller's handle: UIImage(data:) (the
+  /// orientation left for UIKit) turned upright by `VisionHelpers.upright`.
+  /// On a Mac, where there is no handle, ImageIO's upright decode.
+  private func image(_ name: String) throws -> CGImage {
+    #if canImport(UIKit)
+    let data = try Data(contentsOf: URL(fileURLWithPath: FixturePaths.path(name)))
+    return try XCTUnwrap(UIImage(data: data).flatMap(VisionHelpers.upright), name)
+    #else
+    return try XCTUnwrap(fixtureImage(name)?.0, name)
+    #endif
+  }
+
+  /// 32×32 greyscale thumbnail, enough to tell a turned face from noise.
+  private func grey(_ image: CGImage) -> [UInt8] {
+    let side = 32
+    var pixels = [UInt8](repeating: 0, count: side * side)
+    pixels.withUnsafeMutableBytes { buffer in
+      CGContext(
+        data: buffer.baseAddress, width: side, height: side, bitsPerComponent: 8,
+        bytesPerRow: side, space: CGColorSpaceCreateDeviceGray(),
+        bitmapInfo: CGImageAlphaInfo.none.rawValue
+      )?.draw(image, in: CGRect(x: 0, y: 0, width: side, height: side))
+    }
+    return pixels
   }
 
   private func meanAbsoluteDifference(_ a: [UInt8], _ b: [UInt8]) -> Double {
@@ -127,9 +143,8 @@ final class OrientationTests: XCTestCase {
   /// way the JS side receives it: the box, and the image-normalized centres
   /// of the left eye, right eye and outer lips.
   private func face(_ name: String) throws -> (box: CGRect, points: [CGPoint]) {
-    let (image, _, _) = try XCTUnwrap(VisionHelpers.loadImage(FixturePaths.path(name)), name)
     let request = VNDetectFaceLandmarksRequest()
-    try VNImageRequestHandler(cgImage: image, options: [:]).perform([request])
+    try VNImageRequestHandler(cgImage: image(name), options: [:]).perform([request])
     let faces = VisionProcessors.processFaces(landmarks: request.results ?? [], quality: [])
     XCTAssertEqual(faces.count, 1, "\(name): faces")
     let first = try XCTUnwrap(faces.first, "\(name): no face")

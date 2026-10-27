@@ -64,6 +64,39 @@ final class ImageMathTests: XCTestCase {
     XCTAssertEqual(crop.pixels, [UInt8](repeating: 0, count: 64))
   }
 
+  func testWarp_survivesNaNAndHugeMatrices() {
+    // NaN, or a shift far off the image: nothing to sample, transparent black.
+    for matrix in [[Double.nan, 0, 0, 0, 1, 0], [1, 0, 1e20, 0, 1, 0]] {
+      let crop = ImageMath.warp(patternImage(), matrix, width: 3, height: 3)
+      XCTAssertEqual(crop.pixels, [UInt8](repeating: 0, count: 36), "\(matrix)")
+    }
+    // A 1e300 zoom maps every output onto the top-left pixel: opaque black.
+    let zoomed = ImageMath.warp(patternImage(), [1e300, 0, 0, 0, 1e300, 0], width: 3, height: 3)
+    XCTAssertEqual(zoomed.pixels, Array([[UInt8]](repeating: [0, 0, 0, 255], count: 9).joined()))
+  }
+
+  func testSharpness_isZeroBelowThreeByThree() {
+    let tiny = RGBAImage(width: 2, height: 9, pixels: [UInt8](repeating: 200, count: 72))
+    XCTAssertEqual(ImageMath.sharpness(tiny), 0)
+  }
+
+  func testHistogram_oneBinHoldsEverything() {
+    XCTAssertEqual(ImageMath.histogram(patternImage(), bins: 1), [1])
+  }
+
+  func testTensor_upscalesASmallImageWithinItsRange() {
+    let tiny = RGBAImage(width: 2, height: 1, pixels: [0, 0, 0, 255, 255, 255, 255, 255])
+    for filter in [Filter.nearest, .bilinear] {
+      let tensor = ImageMath.tensor(
+        tiny, width: 7, height: 5, fit: .cover, filter: filter,
+        mean: [0, 0, 0], std: [1, 1, 1], layout: .nchw)
+      XCTAssertEqual(tensor.count, 3 * 7 * 5)
+      XCTAssertTrue(tensor.allSatisfy { (0...1).contains($0) }, "\(filter)")
+      XCTAssertEqual(tensor.first, 0, "left edge is the black pixel")
+      XCTAssertEqual(tensor[6], 1, "right edge is the white pixel")
+    }
+  }
+
   func testTensor_nhwcInterleavesTheSameValues() {
     let image = patternImage()
     let args = (w: 8, h: 6, mean: [0.1, 0.2, 0.3], std: [0.5, 0.6, 0.7])

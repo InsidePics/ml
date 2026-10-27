@@ -1,6 +1,6 @@
+import CoreGraphics
 import CryptoKit
 import Foundation
-import ImageIO
 @testable import ExpoImageMlTools
 
 /// `fixtures/expected/model-inputs.json`: what the InsidePics app's
@@ -46,18 +46,6 @@ func sha256(_ floats: [Float]) -> String { sha256(ImageMath.bytes(floats)) }
 /// A Double's bit pattern as the JSON stores it, so equality is exact.
 func bits(_ value: Double) -> String { value.bitPattern.description }
 
-/// The fixture decoded upright the way the app's decoder did: ImageIO, the
-/// EXIF orientation applied, full resolution.
-func uprightCGImage(_ name: String) -> CGImage? {
-  let url = URL(fileURLWithPath: FixturePaths.path(name))
-  guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
-  let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
-  if (props?[kCGImagePropertyOrientation] as? UInt32 ?? 1) == 1 {
-    return CGImageSourceCreateImageAtIndex(source, 0, nil)
-  }
-  let options: [CFString: Any] = [
-    kCGImageSourceCreateThumbnailFromImageAlways: true,
-    kCGImageSourceCreateThumbnailWithTransform: true,
-  ]
-  return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
-}
+/// The fixture decoded upright the way the InsidePics app's old decoder did
+/// (`fixtureImage`: ImageIO applying the orientation while decoding).
+func uprightCGImage(_ name: String) -> CGImage? { fixtureImage(name)?.0 }

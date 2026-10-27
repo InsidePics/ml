@@ -1,4 +1,5 @@
 import { requireOptionalNativeModule } from 'expo';
+import type { SharedRef } from 'expo-modules-core/types';
 
 import type {
   FaceObservation,
@@ -14,22 +15,22 @@ export interface ExpoMlKitNative {
   /** False where the module is linked but ML Kit is not (an iOS simulator:
    *  Google ships no simulator build of the iOS models). */
   readonly isAvailable: boolean;
-  /** The image models over one decode; text by the Latin recognizer. No
+  /** The image models over the one image; text by the Latin recognizer. No
    *  entities: they are found in TS-chosen text (`extractEntities`). */
   analyzeImage(
-    path: string,
+    image: SharedRef<'image'>,
     models: readonly string[]
   ): Promise<Omit<MlKitAnalysisResult, 'entities'>>;
-  /** The given scripts' recognizers over one decode, in order. */
+  /** The given scripts' recognizers over the one image, in order. */
   recognizeText(
-    path: string,
+    image: SharedRef<'image'>,
     scripts: readonly MlKitTextScript[]
   ): Promise<MlKitText[]>;
   /** Entities in `text`; null while the language model is not on the
    *  device yet ("unknown", never "none"). */
   extractEntities(text: string): Promise<MlKitEntity[] | null>;
-  detectFaces(path: string): Promise<FaceObservation[]>;
-  detectBarcodes(path: string): Promise<MlKitBarcode[]>;
+  detectFaces(image: SharedRef<'image'>): Promise<FaceObservation[]>;
+  detectBarcodes(image: SharedRef<'image'>): Promise<MlKitBarcode[]>;
 }
 
 /**

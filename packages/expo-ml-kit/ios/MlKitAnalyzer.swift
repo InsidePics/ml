@@ -84,7 +84,7 @@ enum MlKitAnalyzer {
     return try scripts.map { try text(vision, image.size, script: $0) }
   }
 
-  /// `image` for ML Kit, upright (`UprightImage` applied the orientation).
+  /// `image` for ML Kit; `AnalysisImage` made it upright.
   static func visionImage(_ image: UIImage) -> VisionImage {
     let vision = VisionImage(image: image)
     vision.orientation = .up

@@ -1,7 +1,8 @@
 import ExpoModulesCore
 import UIKit
 
-/// Google ML Kit image analysis on iOS — the same `analyzeImage`,
+/// Google ML Kit image analysis on an Expo image handle (`SharedRef<UIImage>`)
+/// on iOS — the same `analyzeImage`,
 /// `recognizeText`, `extractEntities` and `detectFaces` Android's
 /// `ExpoMlKitModule.kt` serves, in one shape, so a caller handles both
 /// platforms alike. On iOS, live barcodes are Apple Vision's job
@@ -22,12 +23,12 @@ public class ExpoMlKitModule: Module {
 
     Constant("isAvailable") { Self.isAvailable }
 
-    AsyncFunction("analyzeImage") { (path: String, models: [String], promise: Promise) in
-      Self.withImage(path, promise) { try MlKitAnalyzer.analyze($0, models: Set(models)) }
+    AsyncFunction("analyzeImage") { (image: SharedRef<UIImage>, models: [String], promise: Promise) in
+      Self.withImage(image, promise) { try MlKitAnalyzer.analyze($0, models: Set(models)) }
     }
 
-    AsyncFunction("recognizeText") { (path: String, scripts: [String], promise: Promise) in
-      Self.withImage(path, promise) { try MlKitAnalyzer.recognize($0, scripts: scripts) }
+    AsyncFunction("recognizeText") { (image: SharedRef<UIImage>, scripts: [String], promise: Promise) in
+      Self.withImage(image, promise) { try MlKitAnalyzer.recognize($0, scripts: scripts) }
     }
 
     // No image: the text TS chose, its confident lines only. Nil (unknown)
@@ -37,20 +38,21 @@ public class ExpoMlKitModule: Module {
     }
 
     // Vision's `FaceObservation` shape, as Android's `FaceMapping.kt` writes.
-    AsyncFunction("detectFaces") { (path: String, promise: Promise) in
-      Self.withImage(path, promise) { try FaceAnalyzer.detect($0) }
+    AsyncFunction("detectFaces") { (image: SharedRef<UIImage>, promise: Promise) in
+      Self.withImage(image, promise) { try FaceAnalyzer.detect($0) }
     }
   }
 
-  private struct DecodeFailure: Error { let path: String }
+  private struct UnreadableImage: Error {}
 
-  /// `run` over `path` decoded upright.
+  /// `run` over the handle's image, prepared for ML Kit (`AnalysisImage`).
   private static func withImage(
-    _ path: String, _ promise: Promise, _ body: @escaping (UIImage) throws -> Any
+    _ image: SharedRef<UIImage>, _ promise: Promise, _ body: @escaping (UIImage) throws -> Any
   ) {
+    let source = image.ref
     run(promise) {
-      guard let image = UprightImage.decode(path) else { throw DecodeFailure(path: path) }
-      return try body(image)
+      guard let prepared = AnalysisImage.prepare(source) else { throw UnreadableImage() }
+      return try body(prepared)
     }
   }
 
@@ -66,8 +68,8 @@ public class ExpoMlKitModule: Module {
       autoreleasepool {
         do {
           promise.resolve(try body())
-        } catch let failure as DecodeFailure {
-          promise.reject("ERR_DECODE", "Could not decode image at \(failure.path)")
+        } catch is UnreadableImage {
+          promise.reject("ERR_IMAGE", "The image has no pixels to read")
         } catch {
           promise.reject("ERR_ML_KIT", error.localizedDescription)
         }

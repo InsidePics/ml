@@ -246,11 +246,4 @@ final class FaceAndTextTests: VisionTestCase {
     }
     wait(for: [expectation], timeout: 30.0)
   }
-
-  // MARK: - Error handling tests
-
-  func testLoadImage_invalidPath_returnsNil() {
-    let result = VisionHelpers.loadImage("/nonexistent/totally/fake/image.jpg")
-    XCTAssertNil(result, "Loading nonexistent image should return nil")
-  }
 }

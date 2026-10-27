@@ -10,7 +10,7 @@ final class VisionProcessorsTests: XCTestCase {
     let path = createTestImage(width: 224, height: 224)
     defer { try? FileManager.default.removeItem(atPath: path) }
 
-    guard let (cgImage, _, _) = VisionHelpers.loadImage(path) else {
+    guard let (cgImage, _, _) = decodeUpright(path: path) else {
       XCTFail("Could not load test image")
       return
     }
@@ -70,7 +70,7 @@ final class VisionProcessorsTests: XCTestCase {
     let path = createTestImage(width: 224, height: 224)
     defer { try? FileManager.default.removeItem(atPath: path) }
 
-    guard let (cgImage, _, _) = VisionHelpers.loadImage(path) else {
+    guard let (cgImage, _, _) = decodeUpright(path: path) else {
       XCTFail("Could not load test image")
       return
     }

@@ -2,7 +2,6 @@
 
 [![npm version](https://img.shields.io/npm/v/@insidepics/expo-apple-intelligence.svg)](https://www.npmjs.com/package/@insidepics/expo-apple-intelligence)
 [![npm downloads](https://img.shields.io/npm/dm/@insidepics/expo-apple-intelligence.svg)](https://www.npmjs.com/package/@insidepics/expo-apple-intelligence)
-[![CI](https://github.com/InsidePics/expo-apple-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/InsidePics/expo-apple-intelligence/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/npm/l/@insidepics/expo-apple-intelligence.svg)](./LICENSE)
 
 An Expo native module exposing Apple's on-device intelligence APIs — Foundation Models, Vision, Speech, and Image Playground — to React Native / Expo.
@@ -13,7 +12,7 @@ All processing runs locally on the device. Nothing is sent to the network. Featu
 
 Grouped by the Apple framework that backs each capability, with the minimum OS version derived from the `@available` gates in the native source.
 
-### Vision — image analysis (iOS 15.1+ / macOS 13.0+)
+### Vision — image analysis (iOS 16.4+ / macOS 13.0+)
 
 - **Comprehensive analysis** — run every available Vision request in a single pass.
 - **Face detection** — bounding boxes, landmarks, roll/yaw/pitch angles, and capture quality.
@@ -26,7 +25,6 @@ Grouped by the Apple framework that backs each capability, with the minimum OS v
 - **Animal detection** — bounding boxes with per-animal labels.
 - **Rectangle detection** — bounding box plus four corner points.
 - **Horizon detection** — horizon angle in radians.
-- **Raw pixel decode** — decode any JPEG/PNG/HEIC to base64 RGBA bytes.
 
 ### Vision — modern requests
 
@@ -48,8 +46,8 @@ Grouped by the Apple framework that backs each capability, with the minimum OS v
 
 ## Requirements
 
-- **iOS deployment target: 15.1** (macOS 13.0). This is the floor enforced by the podspec; the module compiles and links against this baseline.
-- **Availability-gated features.** The 15.1 floor only covers the classic Vision requests. Newer capabilities are gated at runtime:
+- **iOS deployment target: 16.4** (macOS 13.0). This is the floor enforced by the podspec.
+- **Availability-gated features.** The 16.4 floor only covers the classic Vision requests. Newer capabilities are gated at runtime:
   - Aesthetics → iOS 18.0 / macOS 15.0
   - Image generation (Image Playground) → iOS 18.4
   - Foundation Models, Speech transcription, lens-smudge, document recognition → iOS 26.0 / macOS 26.0
@@ -83,18 +81,18 @@ import type {
   ImageAnalysisResult,
   TextObservation,
 } from '@insidepics/expo-apple-intelligence';
+import { ImageManipulator } from 'expo-image-manipulator';
+
+// Decode once; every module that takes an Expo image handle reads it.
+const photo = await ImageManipulator.manipulate('file:///path/to/photo.jpg').renderAsync();
 
 // 1. Run every available analysis on an image in a single pass.
-const result: ImageAnalysisResult = await ExpoAppleIntelligence.analyzeImage(
-  '/path/to/photo.jpg'
-);
+const result: ImageAnalysisResult = await ExpoAppleIntelligence.analyzeImage(photo);
 console.log(`${result.faces.length} faces, ${result.labels.length} labels`);
 console.log('image size', result.imageWidth, result.imageHeight);
 
 // 2. Or call a single Vision request directly.
-const lines: TextObservation[] = await ExpoAppleIntelligence.recognizeText(
-  '/path/to/receipt.jpg'
-);
+const lines: TextObservation[] = await ExpoAppleIntelligence.recognizeText(photo);
 for (const line of lines) {
   console.log(line.candidates[0]?.string, '@', line.candidates[0]?.confidence);
 }
@@ -113,33 +111,37 @@ const imagePath = await ExpoAppleIntelligence.generateImage(
   'a fox reading a book',
   'illustration'
 );
+
+// Free the decoded pixels when done (they are also freed when collected).
+photo.release();
 ```
 
-Image and audio arguments accept either a plain filesystem path or a `file://` URL.
+Image functions take an Expo image handle (`SharedRef<'image'>`, exported as
+`ImageRef`): one from `expo-image-manipulator`, `expo-image`, or
+`expo-image-ml-tools`' `warp`. Audio takes a filesystem path or `file://` URL.
 
 ## API reference
 
-The default export is the native module. Every method takes an image (or audio) path string. Vision coordinates are normalized (0–1) with a bottom-left origin, exactly as Apple returns them; face landmark points are normalized to the face bounding box. Images are analyzed upright: the EXIF orientation is applied first, so every coordinate, `imageWidth`/`imageHeight` and `decodeImagePixels` output is in the frame a viewer shows (an iPhone portrait photo is stored landscape with orientation 6, and comes back portrait).
+The default export is the native module. Every image method takes an image handle (`ImageRef`); audio takes a path. Vision coordinates are normalized (0–1) with a bottom-left origin, exactly as Apple returns them; face landmark points are normalized to the face bounding box. Images are analyzed upright: a handle's orientation is applied first (expo-image-manipulator's are upright already), so every coordinate and `imageWidth`/`imageHeight` is in the frame a viewer shows.
 
 | Function | Signature | Description | Min OS / Framework |
 | --- | --- | --- | --- |
-| `analyzeImage` | `(imagePath: string) => Promise<ImageAnalysisResult>` | Runs all available Vision analyses in one pass (most efficient). Includes iOS 26 lens-smudge & document results when available. | iOS 15.1 (Vision); richer fields gated higher |
-| `detectFaces` | `(imagePath: string) => Promise<FaceObservation[]>` | Face detection with landmarks, roll/yaw/pitch, and capture quality. | iOS 15.1 / Vision |
-| `recognizeText` | `(imagePath: string) => Promise<TextObservation[]>` | Accurate-level OCR; up to 10 candidates per observation. | iOS 15.1 / Vision |
-| `classifyImage` | `(imagePath: string) => Promise<ClassificationObservation[]>` | Full unfiltered image classification. | iOS 15.1 / Vision |
-| `detectBarcodes` | `(imagePath: string) => Promise<BarcodeObservation[]>` | Barcode & QR detection with symbology, payload, corner points. | iOS 15.1 / Vision |
-| `detectBodyPoses` | `(imagePath: string) => Promise<BodyPoseObservation[]>` | Human body pose detection (named joints). | iOS 15.1 / Vision |
-| `detectHandPoses` | `(imagePath: string) => Promise<HandPoseObservation[]>` | Hand pose detection (up to 4 hands). | iOS 15.1 / Vision |
-| `generateFeaturePrint` | `(imagePath: string) => Promise<FeaturePrintResult \| null>` | Image similarity feature-print vector. | iOS 15.1 / Vision |
-| `detectSaliency` | `(imagePath: string) => Promise<SaliencyResult \| null>` | Attention-based and objectness-based salient regions. | iOS 15.1 / Vision |
-| `detectAnimals` | `(imagePath: string) => Promise<AnimalObservation[]>` | Animal detection with all labels. | iOS 15.1 / Vision |
-| `detectRectangles` | `(imagePath: string) => Promise<RectangleObservation[]>` | Rectangle detection with corner points (max 10). | iOS 15.1 / Vision |
-| `detectHorizon` | `(imagePath: string) => Promise<HorizonResult \| null>` | Horizon angle in radians. | iOS 15.1 / Vision |
-| `decodeImagePixels` | `(imagePath: string) => Promise<{ pixels: string; width: number; height: number }>` | Decode any image to base64-encoded RGBA bytes. | iOS 15.1 |
-| `calculateAesthetics` | `(imagePath: string) => Promise<AestheticsResult \| null>` | Aesthetic quality score + utility-image flag. Returns `null` on older OS. | iOS 18.0 / macOS 15.0 — Vision |
+| `analyzeImage` | `(image: ImageRef) => Promise<ImageAnalysisResult>` | Runs all available Vision analyses in one pass (most efficient). Includes iOS 26 lens-smudge & document results when available. | iOS 16.4 (Vision); richer fields gated higher |
+| `detectFaces` | `(image: ImageRef) => Promise<FaceObservation[]>` | Face detection with landmarks, roll/yaw/pitch, and capture quality. | iOS 16.4 / Vision |
+| `recognizeText` | `(image: ImageRef) => Promise<TextObservation[]>` | Accurate-level OCR; up to 10 candidates per observation. | iOS 16.4 / Vision |
+| `classifyImage` | `(image: ImageRef) => Promise<ClassificationObservation[]>` | Full unfiltered image classification. | iOS 16.4 / Vision |
+| `detectBarcodes` | `(image: ImageRef) => Promise<BarcodeObservation[]>` | Barcode & QR detection with symbology, payload, corner points. | iOS 16.4 / Vision |
+| `detectBodyPoses` | `(image: ImageRef) => Promise<BodyPoseObservation[]>` | Human body pose detection (named joints). | iOS 16.4 / Vision |
+| `detectHandPoses` | `(image: ImageRef) => Promise<HandPoseObservation[]>` | Hand pose detection (up to 4 hands). | iOS 16.4 / Vision |
+| `generateFeaturePrint` | `(image: ImageRef) => Promise<FeaturePrintResult \| null>` | Image similarity feature-print vector. | iOS 16.4 / Vision |
+| `detectSaliency` | `(image: ImageRef) => Promise<SaliencyResult \| null>` | Attention-based and objectness-based salient regions. | iOS 16.4 / Vision |
+| `detectAnimals` | `(image: ImageRef) => Promise<AnimalObservation[]>` | Animal detection with all labels. | iOS 16.4 / Vision |
+| `detectRectangles` | `(image: ImageRef) => Promise<RectangleObservation[]>` | Rectangle detection with corner points (max 10). | iOS 16.4 / Vision |
+| `detectHorizon` | `(image: ImageRef) => Promise<HorizonResult \| null>` | Horizon angle in radians. | iOS 16.4 / Vision |
+| `calculateAesthetics` | `(image: ImageRef) => Promise<AestheticsResult \| null>` | Aesthetic quality score + utility-image flag. Returns `null` on older OS. | iOS 18.0 / macOS 15.0 — Vision |
 | `generateImage` | `(prompt: string, style?: 'animation' \| 'illustration' \| 'sketch') => Promise<string \| null>` | Text-to-image; returns a path to the generated JPEG, or `null`. | iOS 18.4 / ImagePlayground |
-| `detectLensSmudge` | `(imagePath: string) => Promise<LensSmudgeResult \| null>` | Lens smudge confidence. Returns `null` on older OS. | iOS 26.0 / macOS 26.0 — Vision |
-| `recognizeDocument` | `(imagePath: string) => Promise<DocumentRecognitionResult \| null>` | Structured document recognition (paragraphs, tables, lists, barcodes, detected data). | iOS 26.0 / macOS 26.0 — Vision |
+| `detectLensSmudge` | `(image: ImageRef) => Promise<LensSmudgeResult \| null>` | Lens smudge confidence. Returns `null` on older OS. | iOS 26.0 / macOS 26.0 — Vision |
+| `recognizeDocument` | `(image: ImageRef) => Promise<DocumentRecognitionResult \| null>` | Structured document recognition (paragraphs, tables, lists, barcodes, detected data). | iOS 26.0 / macOS 26.0 — Vision |
 | `isFoundationModelAvailable` | `() => boolean` | Synchronous check for on-device Foundation Model availability. | iOS 26.0 / FoundationModels |
 | `generateText` | `(prompt: string, systemPrompt?: string) => Promise<string \| null>` | On-device LLM text generation with an optional system prompt. | iOS 26.0 / FoundationModels |
 | `transcribeAudio` | `(audioPath: string, locale?: string) => Promise<TranscriptionResult \| null>` | Transcribe a local audio file; optional BCP-47 locale. | iOS 26.0 / Speech (SpeechAnalyzer) |

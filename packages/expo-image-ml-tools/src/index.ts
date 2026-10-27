@@ -54,14 +54,12 @@ export async function toTensor(
   options: TensorOptions
 ): Promise<Float32Array> {
   const { width, height } = options;
-  if (
-    !(
-      width > 0 &&
-      height > 0 &&
-      Number.isInteger(width) &&
-      Number.isInteger(height)
-    )
-  ) {
+  if (!(
+    width > 0 &&
+    height > 0 &&
+    Number.isInteger(width) &&
+    Number.isInteger(height)
+  )) {
     throw new Error('toTensor needs a positive whole width and height');
   }
   const bytes = await native().toTensor(image, {

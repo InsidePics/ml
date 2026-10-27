@@ -17,7 +17,7 @@ final class FaceQualityTests: XCTestCase {
     throw XCTSkip("Face detection requires Neural Engine")
     #endif
     for name in fixtures {
-      guard let (cgImage, _, _) = VisionHelpers.loadImage(FixturePaths.path(name)) else {
+      guard let (cgImage, _, _) = fixtureImage(name) else {
         XCTFail("Could not load \(name)")
         continue
       }

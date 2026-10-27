@@ -32,7 +32,7 @@ class VisionTestCase: XCTestCase {
   }
 
   func loadFixture(_ name: String) -> (CGImage, CGFloat, CGFloat)? {
-    VisionHelpers.loadImage(fixturePath(name))
+    fixtureImage(name)
   }
 
   func generateFeaturePrint(fixture: String) -> VNFeaturePrintObservation? {

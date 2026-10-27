@@ -1,5 +1,9 @@
 import XCTest
 @testable import ExpoAppleIntelligence
+#if canImport(UIKit)
+import CoreImage
+import UIKit
+#endif
 
 final class VisionHelpersTests: XCTestCase {
 
@@ -61,136 +65,27 @@ final class VisionHelpersTests: XCTestCase {
     XCTAssertEqual(result["y"]!, 1.0, accuracy: 0.001)
   }
 
-  // MARK: - loadImage
+  // MARK: - upright (a handle's image)
 
-  func testLoadImage_returnsNilForNonexistentPath() {
-    let result = VisionHelpers.loadImage("/nonexistent/path/image.jpg")
-    XCTAssertNil(result)
+  #if canImport(UIKit)
+  func testUpright_usesAnUprightImageAsItIs() throws {
+    let cgImage = try XCTUnwrap(fixtureImage("face.jpg")?.0)
+    let image = UIImage(cgImage: cgImage, scale: 1, orientation: .up)
+    XCTAssertTrue(try XCTUnwrap(VisionHelpers.upright(image)) === cgImage)
   }
 
-  func testLoadImage_returnsNilForEmptyPath() {
-    let result = VisionHelpers.loadImage("")
-    XCTAssertNil(result)
+  func testUpright_measuresAScaledImageInPixels() throws {
+    let cgImage = try XCTUnwrap(fixtureImage("face.jpg")?.0)
+    let image = UIImage(cgImage: cgImage, scale: 3, orientation: .left)
+    let upright = try XCTUnwrap(VisionHelpers.upright(image))
+    // .left turns the 400x600 pixels on their side; scale changes nothing.
+    XCTAssertEqual(upright.width, 600)
+    XCTAssertEqual(upright.height, 400)
   }
 
-  func testLoadImage_handlesFileUrlPrefix() {
-    let result = VisionHelpers.loadImage("file:///nonexistent/path/image.jpg")
-    XCTAssertNil(result)
+  func testUpright_refusesAnImageWithNoPixels() {
+    let ciOnly = UIImage(ciImage: CIImage(color: .red).cropped(to: CGRect(x: 0, y: 0, width: 4, height: 4)))
+    XCTAssertNil(VisionHelpers.upright(ciOnly))
   }
-
-  func testLoadImage_loadsValidImage() {
-    let path = createTestImage(width: 100, height: 50)
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let result = VisionHelpers.loadImage(path)
-    XCTAssertNotNil(result)
-
-    let (cgImage, width, height) = result!
-    XCTAssertEqual(Int(width), 100)
-    XCTAssertEqual(Int(height), 50)
-    XCTAssertEqual(cgImage.width, 100)
-    XCTAssertEqual(cgImage.height, 50)
-  }
-
-  func testLoadImage_loadsWithFileUrlPrefix() {
-    let path = createTestImage(width: 64, height: 64)
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let fileUrl = "file://" + path
-    let result = VisionHelpers.loadImage(fileUrl)
-    XCTAssertNotNil(result)
-  }
-
-  // MARK: - decodePixels
-
-  func testDecodePixels_returnsCorrectSize() {
-    let path = createTestImage(width: 10, height: 10)
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let (cgImage, _, _) = VisionHelpers.loadImage(path)!
-    let data = VisionHelpers.decodePixels(cgImage)
-
-    XCTAssertNotNil(data)
-    // 10x10 image * 4 bytes (RGBA) = 400 bytes
-    XCTAssertEqual(data!.count, 10 * 10 * 4)
-  }
-
-  func testDecodePixels_redImageHasCorrectPixels() {
-    // Decode directly from in-memory CGImage to avoid PNG round-trip
-    // color space conversion artifacts
-    let cgImage = createTestCGImage(width: 2, height: 2)
-    let data = VisionHelpers.decodePixels(cgImage)!
-    let bytes = [UInt8](data)
-
-    // First pixel should be red (R=255, G=0, B=0, A=255)
-    XCTAssertEqual(bytes[0], 255) // R
-    XCTAssertEqual(bytes[1], 0)   // G
-    XCTAssertEqual(bytes[2], 0)   // B
-    XCTAssertEqual(bytes[3], 255) // A
-  }
-
-  func testDecodePixels_1x1Image() {
-    let path = createTestImage(width: 1, height: 1)
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let (cgImage, _, _) = VisionHelpers.loadImage(path)!
-    let data = VisionHelpers.decodePixels(cgImage)
-
-    XCTAssertNotNil(data)
-    XCTAssertEqual(data!.count, 4)
-  }
-
-  func testDecodePixels_largeImage() {
-    let path = createTestImage(width: 1000, height: 500)
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let (cgImage, _, _) = VisionHelpers.loadImage(path)!
-    let data = VisionHelpers.decodePixels(cgImage)
-
-    XCTAssertNotNil(data)
-    XCTAssertEqual(data!.count, 1000 * 500 * 4)
-  }
-
-  // MARK: - Helpers
-
-  private func createTestCGImage(width: Int, height: Int) -> CGImage {
-    // Must use the same color space as decodePixels (deviceRGB) and define
-    // the fill color in that space to avoid cross-space conversion artifacts
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let context = CGContext(
-      data: nil, width: width, height: height,
-      bitsPerComponent: 8, bytesPerRow: width * 4,
-      space: colorSpace,
-      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    )!
-    context.setFillColor(CGColor(colorSpace: colorSpace, components: [1, 0, 0, 1])!)
-    context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-    return context.makeImage()!
-  }
-
-  private func createTestImage(width: Int, height: Int) -> String {
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let context = CGContext(
-      data: nil, width: width, height: height,
-      bitsPerComponent: 8, bytesPerRow: width * 4,
-      space: colorSpace,
-      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    )!
-    context.setFillColor(CGColor(red: 1, green: 0, blue: 0, alpha: 1))
-    context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-
-    let cgImage = context.makeImage()!
-    let path = NSTemporaryDirectory() + "test_\(UUID().uuidString).png"
-
-    #if canImport(UIKit)
-    let uiImage = UIImage(cgImage: cgImage)
-    try! uiImage.pngData()!.write(to: URL(fileURLWithPath: path))
-    #elseif canImport(AppKit)
-    let nsImage = NSImage(cgImage: cgImage, size: NSSize(width: width, height: height))
-    let rep = NSBitmapImageRep(cgImage: cgImage)
-    try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: path))
-    #endif
-
-    return path
-  }
+  #endif
 }

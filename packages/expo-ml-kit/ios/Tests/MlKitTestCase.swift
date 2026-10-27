@@ -9,12 +9,13 @@ import XCTest
 /// `pnpm test:device:ios` runs them on an iPhone.
 class MlKitTestCase: XCTestCase {
 
-  /// The fixture decoded upright, as the module decodes a caller's photo.
+  /// The fixture as the module sees a caller's handle: UIImage(data:)
+  /// (the EXIF orientation left for UIKit), prepared by `AnalysisImage`.
   func image(_ name: String, file: StaticString = #filePath, line: UInt = #line) throws
     -> UIImage
   {
     try XCTUnwrap(
-      UprightImage.decode(FixturePaths.path(name)), "Could not decode \(name)",
+      loadedImage(name).flatMap(AnalysisImage.prepare), "Could not prepare \(name)",
       file: file, line: line)
   }
 
@@ -69,3 +70,9 @@ class MlKitTestCase: XCTestCase {
   }
 }
 #endif
+
+/// The fixture as UIImage(data:) loads it, orientation kept as
+/// `imageOrientation`.
+func loadedImage(_ name: String) throws -> UIImage? {
+  UIImage(data: try Data(contentsOf: URL(fileURLWithPath: FixturePaths.path(name))))
+}

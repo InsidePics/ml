@@ -1,16 +1,19 @@
 package expo.modules.mlkit
 
+import android.graphics.Bitmap
 import com.google.mlkit.vision.common.InputImage
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import expo.modules.kotlin.sharedobjects.SharedRef
 import java.util.concurrent.Executors
 
 /**
- * Google ML Kit image analysis, the Android counterpart of
- * `@insidepics/expo-apple-intelligence`. Every call decodes the photo once,
- * upright ([UprightBitmap]), and runs its detectors on that one bitmap.
- * Results follow `src/ExpoMlKit.types.ts`.
+ * Google ML Kit image analysis on an Expo image handle (`SharedRef<Bitmap>`,
+ * from expo-image-manipulator or any module that makes one), the Android
+ * counterpart of `ios/ExpoMlKitModule.swift`. Every call runs its detectors
+ * on the caller's one decode ([AnalysisBitmap]). Results follow
+ * `src/ExpoMlKit.types.ts`.
  */
 class ExpoMlKitModule : Module() {
   override fun definition() = ModuleDefinition {
@@ -19,12 +22,12 @@ class ExpoMlKitModule : Module() {
     // Every Android device has the bundled models.
     Constant("isAvailable") { true }
 
-    AsyncFunction("analyzeImage") { path: String, models: List<String>, promise: Promise ->
-      withImage(path, promise) { analyze(it, models.toSet()) }
+    AsyncFunction("analyzeImage") { image: SharedRef<Bitmap>, models: List<String>, promise: Promise ->
+      withImage(image, promise) { analyze(it, models.toSet()) }
     }
 
-    AsyncFunction("recognizeText") { path: String, scripts: List<String>, promise: Promise ->
-      withImage(path, promise) { image -> scripts.map { TextAnalyzer.recognize(image, it) } }
+    AsyncFunction("recognizeText") { image: SharedRef<Bitmap>, scripts: List<String>, promise: Promise ->
+      withImage(image, promise) { input -> scripts.map { TextAnalyzer.recognize(input, it) } }
     }
 
     // No image: the text TS chose, its confident lines only.
@@ -32,12 +35,12 @@ class ExpoMlKitModule : Module() {
       onQueue(promise) { EntityAnalyzer.extract(text) }
     }
 
-    AsyncFunction("detectFaces") { path: String, promise: Promise ->
-      withImage(path, promise) { FaceAnalyzer.detect(it) }
+    AsyncFunction("detectFaces") { image: SharedRef<Bitmap>, promise: Promise ->
+      withImage(image, promise) { FaceAnalyzer.detect(it) }
     }
 
-    AsyncFunction("detectBarcodes") { path: String, promise: Promise ->
-      withImage(path, promise) { BarcodeAnalyzer.scan(it) }
+    AsyncFunction("detectBarcodes") { image: SharedRef<Bitmap>, promise: Promise ->
+      withImage(image, promise) { BarcodeAnalyzer.scan(it) }
     }
   }
 
@@ -59,15 +62,16 @@ class ExpoMlKitModule : Module() {
     )
   }
 
-  /** [onQueue] over `path` decoded upright; one decode at a time keeps a
-   *  single full bitmap in memory. */
-  private fun withImage(path: String, promise: Promise, run: (InputImage) -> Any) {
+  /** [onQueue] over the handle's bitmap, prepared for ML Kit; a copy made
+   *  for it is recycled, the handle's own bitmap never. */
+  private fun withImage(image: SharedRef<Bitmap>, promise: Promise, run: (InputImage) -> Any) {
+    val source = image.ref
     onQueue(promise) {
-      val bitmap = UprightBitmap.decode(path)
+      val bitmap = AnalysisBitmap.prepare(source)
       try {
         run(InputImage.fromBitmap(bitmap, 0))
       } finally {
-        bitmap.recycle()
+        if (bitmap !== source) bitmap.recycle()
       }
     }
   }

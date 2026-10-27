@@ -82,6 +82,35 @@ class ImageMathTests {
     for (p in 0 until plane) for (ch in 0 until 3) assertEquals(planar[ch * plane + p], packed[p * 3 + ch])
   }
 
+  @Test fun warpSurvivesNaNAndHugeMatrices() {
+    // NaN, or a shift far off the image: nothing to sample, transparent black.
+    for (m in listOf(doubleArrayOf(Double.NaN, 0.0, 0.0, 0.0, 1.0, 0.0), doubleArrayOf(1.0, 0.0, 1e20, 0.0, 1.0, 0.0))) {
+      assertArrayEquals(ByteArray(36), ImageMath.warp(patternImage(), m, 3, 3).pixels)
+    }
+    // A 1e300 zoom maps every output onto the top-left pixel: opaque black.
+    val zoomed = ImageMath.warp(patternImage(), doubleArrayOf(1e300, 0.0, 0.0, 0.0, 1e300, 0.0), 3, 3)
+    assertArrayEquals(ByteArray(36) { if (it % 4 == 3) -1 else 0 }, zoomed.pixels)
+  }
+
+  @Test fun sharpnessIsZeroBelowThreeByThree() {
+    assertEquals(0.0, ImageMath.sharpness(RgbaImage(2, 9, ByteArray(72) { 200.toByte() })), 0.0)
+  }
+
+  @Test fun oneHistogramBinHoldsEverything() {
+    assertArrayEquals(floatArrayOf(1f), ImageMath.histogram(patternImage(), 1), 0f)
+  }
+
+  @Test fun upscalingASmallImageStaysInRange() {
+    val tiny = RgbaImage(2, 1, byteArrayOf(0, 0, 0, -1, -1, -1, -1, -1))
+    for (filter in Filter.values()) {
+      val t = ImageMath.tensor(tiny, 7, 5, Fit.COVER, filter, DoubleArray(3), doubleArrayOf(1.0, 1.0, 1.0), Layout.NCHW)
+      assertEquals(105, t.size)
+      assert(t.all { it in 0f..1f })
+      assertEquals(0f, t[0])
+      assertEquals(1f, t[6])
+    }
+  }
+
   @Test fun aDegenerateMatrixLeavesTheCropBlack() {
     val crop = ImageMath.warp(patternImage(), DoubleArray(6), 4, 4)
     assertArrayEquals(ByteArray(64), crop.pixels)

@@ -1,4 +1,5 @@
 import { NativeModule, requireNativeModule } from 'expo';
+import type { SharedRef } from 'expo-modules-core/types';
 
 import type {
   ExpoAppleIntelligenceModuleEvents,
@@ -20,53 +21,55 @@ import type {
   TranscriptionResult,
 } from './ExpoAppleIntelligence.types';
 
+/** Any Expo image handle: from expo-image-manipulator, expo-image, or
+ *  expo-image-ml-tools' `warp`. Every image function takes one. */
+export type ImageRef = SharedRef<'image'>;
+
 declare class ExpoAppleIntelligenceModule extends NativeModule<ExpoAppleIntelligenceModuleEvents> {
   /** Run all available analyses in a single pass (most efficient) */
-  analyzeImage(imagePath: string): Promise<ImageAnalysisResult>;
+  analyzeImage(image: ImageRef): Promise<ImageAnalysisResult>;
 
   /** Face detection with landmarks, quality, angles */
-  detectFaces(imagePath: string): Promise<FaceObservation[]>;
+  detectFaces(image: ImageRef): Promise<FaceObservation[]>;
 
   /** OCR text recognition — array of observations with candidates */
-  recognizeText(imagePath: string): Promise<TextObservation[]>;
+  recognizeText(image: ImageRef): Promise<TextObservation[]>;
 
   /** Image classification — all observations, unfiltered */
-  classifyImage(imagePath: string): Promise<ClassificationObservation[]>;
+  classifyImage(image: ImageRef): Promise<ClassificationObservation[]>;
 
   /** Barcode and QR code detection */
-  detectBarcodes(imagePath: string): Promise<BarcodeObservation[]>;
+  detectBarcodes(image: ImageRef): Promise<BarcodeObservation[]>;
 
   /** Human body pose detection */
-  detectBodyPoses(imagePath: string): Promise<BodyPoseObservation[]>;
+  detectBodyPoses(image: ImageRef): Promise<BodyPoseObservation[]>;
 
   /** Hand pose detection */
-  detectHandPoses(imagePath: string): Promise<HandPoseObservation[]>;
+  detectHandPoses(image: ImageRef): Promise<HandPoseObservation[]>;
 
   /** Image similarity vector */
-  generateFeaturePrint(imagePath: string): Promise<FeaturePrintResult | null>;
+  generateFeaturePrint(image: ImageRef): Promise<FeaturePrintResult | null>;
 
   /** Aesthetic quality score (iOS 18+/macOS 15+ only, returns null otherwise) */
-  calculateAesthetics(imagePath: string): Promise<AestheticsResult | null>;
+  calculateAesthetics(image: ImageRef): Promise<AestheticsResult | null>;
 
   /** Salient regions */
-  detectSaliency(imagePath: string): Promise<SaliencyResult | null>;
+  detectSaliency(image: ImageRef): Promise<SaliencyResult | null>;
 
   /** Animal detection with all labels */
-  detectAnimals(imagePath: string): Promise<AnimalObservation[]>;
+  detectAnimals(image: ImageRef): Promise<AnimalObservation[]>;
 
   /** Rectangle detection with corner points */
-  detectRectangles(imagePath: string): Promise<RectangleObservation[]>;
+  detectRectangles(image: ImageRef): Promise<RectangleObservation[]>;
 
   /** Horizon angle in radians */
-  detectHorizon(imagePath: string): Promise<HorizonResult | null>;
+  detectHorizon(image: ImageRef): Promise<HorizonResult | null>;
 
   /** Lens smudge detection (iOS 26+/macOS 26+ only, returns null otherwise) */
-  detectLensSmudge(imagePath: string): Promise<LensSmudgeResult | null>;
+  detectLensSmudge(image: ImageRef): Promise<LensSmudgeResult | null>;
 
   /** Structured document recognition (iOS 26+/macOS 26+ only, returns null otherwise) */
-  recognizeDocument(
-    imagePath: string
-  ): Promise<DocumentRecognitionResult | null>;
+  recognizeDocument(image: ImageRef): Promise<DocumentRecognitionResult | null>;
 
   /** Check if on-device Foundation Model is available (iOS 26+) */
   isFoundationModelAvailable(): boolean;
@@ -85,13 +88,6 @@ declare class ExpoAppleIntelligenceModule extends NativeModule<ExpoAppleIntellig
     prompt: string,
     style?: 'animation' | 'illustration' | 'sketch'
   ): Promise<string | null>;
-
-  /** Decode any image (JPEG, PNG, HEIC, etc.) to raw RGBA pixels */
-  decodeImagePixels(imagePath: string): Promise<{
-    pixels: string; // base64-encoded RGBA bytes
-    width: number;
-    height: number;
-  }>;
 }
 
 export default requireNativeModule<ExpoAppleIntelligenceModule>(

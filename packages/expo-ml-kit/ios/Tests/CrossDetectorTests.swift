@@ -41,12 +41,12 @@ final class CrossDetectorTests: MlKitTestCase {
 
   // MARK: - Helpers
 
-  /// Each module's single face, decoded the way each module decodes.
+  /// Each module's single face from one handle, as a caller passes the same
+  /// image to both (here UIImage(data:), its orientation left for UIKit).
   private func faces(_ name: String) throws -> ([String: Any], [String: Any]) {
-    let path = FixturePaths.path(name)
-    let (cgImage, _, _) = try XCTUnwrap(VisionHelpers.loadImage(path), name)
-    let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-    let apple = try VisionProcessors.detectFaces(handler)
+    let handle = try XCTUnwrap(loadedImage(name), name)
+    let cgImage = try XCTUnwrap(VisionHelpers.upright(handle), name)
+    let apple = try VisionProcessors.detectFaces(VNImageRequestHandler(cgImage: cgImage, options: [:]))
     let mlKit = try detectFaces(name)
     XCTAssertEqual(apple.count, 1, "\(name): Apple faces")
     XCTAssertEqual(mlKit.count, 1, "\(name): ML Kit faces")

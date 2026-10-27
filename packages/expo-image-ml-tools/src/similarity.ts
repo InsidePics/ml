@@ -9,7 +9,7 @@ export type AffineMatrix = readonly [
   number,
   number,
   number,
-  number
+  number,
 ];
 
 /**

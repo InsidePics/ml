@@ -1,3 +1,5 @@
+import type { SharedRef } from 'expo-modules-core/types';
+
 import type {
   FaceObservation,
   MlKitAnalysisResult,
@@ -15,6 +17,10 @@ import {
 export * from './ExpoMlKit.types';
 export * from './artifacts';
 
+/** Any Expo image handle: from expo-image-manipulator, expo-image, or
+ *  expo-image-ml-tools' `warp`. */
+export type ImageRef = SharedRef<'image'>;
+
 /**
  * Whether ML Kit can analyse on this device: the module is linked and its
  * models are (not on an iOS simulator, where Google ships no build).
@@ -31,8 +37,9 @@ function native(): ExpoMlKitNative {
 }
 
 /**
- * The ML Kit image models `models` names (`mlKit*` cell ids) over an upright
- * decode of `path`; any other model's result comes back empty. The same on
+ * The ML Kit image models `models` names (`mlKit*` cell ids) over `image`,
+ * an Expo image handle (expo-image-manipulator's, or any module's); any other
+ * model's result comes back empty. The same on
  * every platform, because the text choices are made here, in TS:
  *
  * - Text is the Latin recognizer's, unless its read suggests another script
@@ -43,18 +50,18 @@ function native(): ExpoMlKitNative {
  *   them runs text recognition too.
  */
 export async function analyzeImage(
-  path: string,
+  image: ImageRef,
   models: readonly string[]
 ): Promise<MlKitAnalysisResult> {
   const module = native();
-  const analysis = await module.analyzeImage(path, models);
+  const analysis = await module.analyzeImage(image, models);
   // Text not asked for comes back empty, which never needs another script.
   let text: MlKitText = analysis.text;
   if (needsOtherScripts(text)) {
     // A second look, not the result: when it fails, the Latin read and every
     // other model's stand rather than the whole pass being lost and retried.
     const others = await module
-      .recognizeText(path, OTHER_TEXT_SCRIPTS)
+      .recognizeText(image, OTHER_TEXT_SCRIPTS)
       .catch((): MlKitText[] => []);
     text = bestText([text, ...others]);
   }
@@ -69,12 +76,12 @@ export async function analyzeImage(
  *  shape on Android and iOS, so faces from either detector feed one face
  *  pipeline. Both detectors box one face in one place (the cross-detector
  *  device suite), so a caller can pair them by overlap. */
-export function detectFaces(path: string): Promise<FaceObservation[]> {
-  return native().detectFaces(path);
+export function detectFaces(image: ImageRef): Promise<FaceObservation[]> {
+  return native().detectFaces(image);
 }
 
 /** ML Kit Barcode Scanning alone, for the QR reader where Apple Vision is
  *  not present (implemented natively on Android). */
-export function detectBarcodes(path: string): Promise<MlKitBarcode[]> {
-  return native().detectBarcodes(path);
+export function detectBarcodes(image: ImageRef): Promise<MlKitBarcode[]> {
+  return native().detectBarcodes(image);
 }

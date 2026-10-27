@@ -149,42 +149,44 @@ final class ImageAnalysisTests: VisionTestCase {
 
   // MARK: - Batch analysis
 
-  func testBatchAnalysis_allRequestsCompleteOnRealImage() throws {
+  func testBatchAnalysis_returnsEveryPartOnARealImage() throws {
     try XCTSkipIf(isSimulator, "Batch analysis requires Neural Engine")
-    guard let (cgImage, _, _) = loadFixture("face.jpg") else {
-      XCTFail("Could not load face.jpg fixture")
-      return
+    let (cgImage, _, _) = try XCTUnwrap(loadFixture("face.jpg"), "face.jpg")
+    let result = try batch(cgImage)
+
+    XCTAssertEqual(result["imageWidth"] as? Double, 400)
+    XCTAssertEqual(result["imageHeight"] as? Double, 600)
+    for key in [
+      "faces", "text", "labels", "barcodes", "bodyPoses", "handPoses", "rectangles", "animals",
+      "featurePrint", "aesthetics", "saliency", "horizon", "lensSmudge", "document", "platform",
+    ] {
+      XCTAssertNotNil(result[key], "missing \(key)")
     }
+    let faces = try XCTUnwrap(result["faces"] as? [[String: Any]])
+    XCTAssertEqual(faces.count, 1, "the face")
+    XCTAssertNotNil(faces.first?["quality"] as? Double, "the face carries its quality")
+    XCTAssertGreaterThan((result["labels"] as? [Any])?.count ?? 0, 0, "labels")
+    XCTAssertNotNil((result["featurePrint"] as? [String: Any])?["data"], "feature print")
+  }
 
-    let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+  func testBatchAnalysis_findsNothingWhereThereIsNothing() throws {
+    try XCTSkipIf(isSimulator, "Batch analysis requires Neural Engine")
+    let (cgImage, _, _) = try XCTUnwrap(loadFixture("landscape.jpg"), "landscape.jpg")
+    let result = try batch(cgImage)
+    for key in ["faces", "barcodes", "bodyPoses", "handPoses"] {
+      XCTAssertEqual((result[key] as? [Any])?.count, 0, "\(key) in a landscape")
+    }
+  }
 
-    let textReq = VNRecognizeTextRequest()
-    textReq.recognitionLevel = .accurate
-    let classifyReq = VNClassifyImageRequest()
-    let barcodeReq = VNDetectBarcodesRequest()
-    let featurePrintReq = VNGenerateImageFeaturePrintRequest()
-    let horizonReq = VNDetectHorizonRequest()
-
-    let requests: [VNRequest] = [
-      textReq, classifyReq, barcodeReq, featurePrintReq, horizonReq,
-    ]
-
-    try handler.perform(requests)
-
-    // Face should be detected, as analyzeImage does it: after the batch
-    let faces = try VisionProcessors.detectFaces(handler)
-    XCTAssertGreaterThanOrEqual(faces.count, 1, "Batch: should detect face")
-
-    // Classification should return labels
-    let labels = VisionProcessors.processClassification(
-      classifyReq.results ?? []
-    )
-    XCTAssertGreaterThan(labels.count, 0, "Batch: should classify image")
-
-    // Feature print should be generated
-    let fp = VisionProcessors.processFeaturePrint(
-      featurePrintReq.results?.first as? VNFeaturePrintObservation
-    )
-    XCTAssertNotNil(fp, "Batch: should generate feature print")
+  /// `VisionBatch.analyze`, the module's `analyzeImage`, awaited.
+  private func batch(_ cgImage: CGImage) throws -> [String: Any] {
+    var outcome: Result<[String: Any], Error>?
+    let done = expectation(description: "batch")
+    Task {
+      do { outcome = .success(try await VisionBatch.analyze(cgImage)) } catch { outcome = .failure(error) }
+      done.fulfill()
+    }
+    wait(for: [done], timeout: 120)
+    return try XCTUnwrap(outcome, "timed out").get()
   }
 }
