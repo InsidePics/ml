@@ -66,3 +66,5 @@ json.dump({"sha": sha, "dirty": dirty != "0", "passed": passed, "device": device
 print(f"Result: {out}")
 sys.exit(0 if passed else 1)
 EOF
+[ "$out" != "$results/android-$sha.json" ] ||
+  bash "$root/scripts/report-device-results.sh" android "$sha" || true

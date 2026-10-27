@@ -33,7 +33,10 @@
     "ios/*.podspec",
     "android/build.gradle",
     "android/src/main",
-    "expo-module.config.json"
+    "expo-module.config.json",
+    "README.md",
+    "LICENSE",
+    "!**/__tests__"
   ],
   "peerDependencies": {
     "expo": "*",
@@ -44,5 +47,10 @@
     "expo-module-scripts": "^56.0.3",
     "react-native": "^0.86.3"
   },
-  "react-native": "src/index.ts"
+  "react-native": "src/index.ts",
+  "bugs": "https://github.com/InsidePics/ml/issues",
+  "homepage": "https://github.com/InsidePics/ml/tree/main/packages/expo-image-ml-tools#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }

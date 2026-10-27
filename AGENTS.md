@@ -30,8 +30,19 @@ templates and model files are the caller's.
 | `pnpm test:device:ios <udid> <team>` | every package's XCTests on an iPhone, one host app                           | every PR touching native or fixtures |
 | `pnpm test:android`                  | every package's instrumented tests on an emulator                            | every PR touching native or fixtures |
 
-A device or emulator run writes `.device-results/<platform>-<sha>.json`; a
-release requires a passing result for the exact commit being released.
+A full, clean, passing device or emulator run writes
+`.device-results/<platform>-<sha>.json` and posts it to GitHub as the commit
+status `device/ios` or `device/android` (`scripts/report-device-results.sh`;
+for a run made before the push, push and run it by hand).
+
+## Releasing
+
+Bump the package's `version`, merge to `main`, then tag that commit
+`<directory>@<version>` (e.g. `expo-ml-kit@0.2.0`) and push the tag.
+`.github/workflows/publish.yml` checks that the commit is on `main` and
+carries both device statuses, runs the gate, and publishes through npm
+trusted publishing. Each package is published as a fresh tag; none is
+published from a laptop.
 
 Skips are allowed only where the platform cannot run the code (the iOS
 simulator has no ML Kit and no Neural Engine). A test that cannot reach what

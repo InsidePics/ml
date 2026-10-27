@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.homepage       = 'https://github.com/InsidePics/ml'
   s.platforms      = { :ios => '16.4' }
   s.swift_version  = '5.9'
-  s.source         = { git: 'https://github.com/InsidePics/ml.git' }
+  s.source         = { git: 'https://github.com/InsidePics/ml.git', tag: "expo-image-ml-tools@#{s.version}" }
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'

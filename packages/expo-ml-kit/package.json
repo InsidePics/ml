@@ -1,15 +1,11 @@
 {
   "name": "@insidepics/expo-ml-kit",
   "version": "0.1.0",
-  "private": true,
   "description": "Google ML Kit on-device image analysis (text, labels, barcodes, poses, objects, entities) for Android and iOS, plus ML Kit face detection on Android.",
-  "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
+    "build": "expo-module build",
     "test": "vitest run",
     "lint": "eslint src",
     "test:kotlin": "bash android/src/test/run-jvm.sh",
@@ -37,6 +33,20 @@
     "plugin/withMlKitSimulator.cjs",
     "app.plugin.cjs",
     "expo-module.config.json",
-    "plugin/withMlKitMinSdk.cjs"
-  ]
+    "plugin/withMlKitMinSdk.cjs",
+    "README.md",
+    "LICENSE",
+    "!**/__tests__"
+  ],
+  "react-native": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InsidePics/ml.git",
+    "directory": "packages/expo-ml-kit"
+  },
+  "bugs": "https://github.com/InsidePics/ml/issues",
+  "homepage": "https://github.com/InsidePics/ml/tree/main/packages/expo-ml-kit#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
