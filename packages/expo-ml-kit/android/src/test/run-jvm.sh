@@ -8,7 +8,7 @@
 #   RECORD_FIXTURE=1 pnpm --filter @insidepics/expo-ml-kit test:kotlin
 #
 # Requires: kotlinc (brew install kotlin) and a JVM; JUnit comes from
-# scripts/lib/kotlin-jvm-test.sh.
+# the repository's scripts/lib/kotlin-jvm-test.sh.
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 MAIN="$DIR/../main/java/expo/modules/mlkit"

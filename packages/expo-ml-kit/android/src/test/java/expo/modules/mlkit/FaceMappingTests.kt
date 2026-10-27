@@ -168,10 +168,9 @@ class FaceMappingTests {
   }
 
   /**
-   * The fixture the TS side reads
-   * (`packages/ui/src/providers/ml/face/__tests__/mlKitFace.test.ts`): this
-   * mapping's output for [frontal], which the real `alignmentLandmarks` must
-   * lift back to `expectedPixels`. `RECORD_FIXTURE=1` rewrites it.
+   * The recorded fixture (`android/src/test/fixtures/face.json`): this mapping's output for
+   * [frontal]. A caller that aligns faces from these landmarks can pin its own
+   * tests to it. `RECORD_FIXTURE=1` rewrites it.
    */
   @Test fun theSharedFixtureIsThisMappingsOutput() {
     val file = File(System.getProperty("faceFixture") ?: error("run via run-jvm.sh"))
@@ -193,7 +192,7 @@ class FaceMappingTests {
   /**
    * One object both families saw on a phone (a barcode): Apple Vision's box,
    * bottom-left, and ML Kit's pixels, top-left. Mapped onto Vision's frame
-   * they are the same box (the app merges faces at IoU >= 0.5); taken as
+   * they are the same box (a caller pairing the two detectors' faces by overlap, at IoU >= 0.5, pairs them); taken as
    * stored, with no flip, they do not overlap at all.
    */
   @Test

@@ -164,7 +164,9 @@ export function needsOtherScripts(latin: MlKitText): boolean {
 /** The best read of several recognizers: the most well-formed text, the
  *  first (Latin) on a tie. */
 export function bestText<T extends MlKitText>(reads: readonly T[]): T {
-  let best = reads[0];
+  const first = reads[0];
+  if (!first) throw new Error('bestText needs at least one read');
+  let best = first;
   let bestScore = textScore(best);
   for (const read of reads.slice(1)) {
     const score = textScore(read);

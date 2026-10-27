@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
  * Entity Extraction over the recognized text (English model). The base
  * detector is bundled; the language model is downloaded by ML Kit at first
  * use, on Wi-Fi only. Until it is on the device the result is null —
- * "unknown", which the app leaves unrecorded and retries — never an empty
+ * "unknown", for the caller to retry — never an empty
  * list, which would read as "no entities".
  */
 object EntityAnalyzer {

@@ -26,5 +26,16 @@
     "expo": "^57.0.31",
     "expo-module-scripts": "^56.0.3",
     "react-native": "^0.87.1"
-  }
+  },
+  "files": [
+    "build",
+    "src",
+    "ios/*.swift",
+    "ios/*.podspec",
+    "android/build.gradle",
+    "android/src/main",
+    "plugin/withMlKitSimulator.js",
+    "app.plugin.js",
+    "expo-module.config.json"
+  ]
 }

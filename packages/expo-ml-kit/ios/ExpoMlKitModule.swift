@@ -3,14 +3,13 @@ import UIKit
 
 /// Google ML Kit image analysis on iOS — the same `analyzeImage`,
 /// `recognizeText`, `extractEntities` and `detectFaces` Android's
-/// `ExpoMlKitModule.kt` serves, so either platform fills the `mlKit*` cells
-/// (`detectFaces` the `mlKitFaces` one, beside Apple Vision's own face cell
-/// on iOS; a face both found is merged when read). Live barcodes stay Apple Vision's
-/// (the app's vision seam), so this module has no `detectBarcodes`.
+/// `ExpoMlKitModule.kt` serves, in one shape, so a caller handles both
+/// platforms alike. On iOS, live barcodes are Apple Vision's job
+/// (`expo-apple-intelligence`), so this module has no `detectBarcodes` here.
 ///
 /// Google ships no Apple Silicon simulator build of ML Kit: on a simulator
-/// the ML Kit code is compiled out (and unlinked, `withMlKitSimulator`), and
-/// `isAvailable` is false, so the app plans no `mlKit*` cell there.
+/// the ML Kit code is compiled out (and unlinked by the config plugin), and
+/// `isAvailable` is false, so a caller can plan around it.
 public class ExpoMlKitModule: Module {
   #if targetEnvironment(simulator)
   static let isAvailable = false

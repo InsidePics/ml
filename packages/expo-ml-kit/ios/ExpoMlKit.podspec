@@ -19,12 +19,12 @@ Pod::Spec.new do |s|
 
   s.dependency 'ExpoModulesCore'
 
-  # BUNDLED ML Kit models only (the model ships in the app), so a result's
-  # version stamp names the model that produced it. Each pod is pinned to
-  # `ML_KIT_ARTIFACTS` in packages/shared/src/ml/modelVersions.ts (the
-  # `mlKitArtifacts` test); bump the model's `ML_KIT_MODEL_VERSIONS` with it.
-  # Google ships no iOS-simulator build of these: the module compiles them
-  # out there and reports itself unavailable (plugins/withMlKitSimulator).
+  # BUNDLED ML Kit models only (the model ships in the app), so a result
+  # names the model that produced it. Each pod is pinned to `ML_KIT_ARTIFACTS`
+  # in src/artifacts.ts (the `mlKitArtifacts` test).
+  # Google ships no Apple Silicon simulator build of these: the module
+  # compiles them out there and reports itself unavailable, and the config
+  # plugin (app.plugin.js) unlinks them from simulator builds.
   s.dependency 'MLKitTextRecognition', '7.0.0'
   s.dependency 'MLKitTextRecognitionChinese', '6.0.0'
   s.dependency 'MLKitTextRecognitionDevanagari', '6.0.0'

@@ -1,9 +1,9 @@
 package expo.modules.mlkit
 
 /**
- * ML Kit faces onto Apple Vision's `FaceObservation` contract — the one the
- * shared face pipeline (`packages/ui/src/providers/ml/face/align.ts`) reads, so
- * Android faces embed and cluster with iOS ones. Pure Kotlin (no Android
+ * ML Kit faces onto Apple Vision's `FaceObservation` contract, so a caller's
+ * one face pipeline (alignment, embedding, clustering) takes Android and iOS
+ * faces alike. Pure Kotlin (no Android
  * imports) so the JVM tests run it as shipped (`run-jvm.sh`).
  *
  * Vision's frame, which every number here is converted to:

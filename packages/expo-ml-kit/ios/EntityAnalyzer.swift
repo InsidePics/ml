@@ -6,7 +6,7 @@ import MLKitEntityExtraction
 /// Entity Extraction over the recognized text (English model), as Android's
 /// `EntityAnalyzer.kt` runs it. The base detector is bundled; the language
 /// model downloads at first use, on Wi-Fi only. Until it is on the device the
-/// result is nil — "unknown", which the app leaves unrecorded and retries —
+/// result is nil — "unknown", for the caller to retry —
 /// never an empty list, which would read as "no entities".
 enum EntityAnalyzer {
   private static let extractor = EntityExtractor.entityExtractor(

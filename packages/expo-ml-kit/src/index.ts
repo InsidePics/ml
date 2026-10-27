@@ -1,10 +1,10 @@
-import ExpoMlKit, { type ExpoMlKitNative } from './ExpoMlKitModule';
 import type {
   FaceObservation,
   MlKitAnalysisResult,
   MlKitBarcode,
   MlKitText,
 } from './ExpoMlKit.types';
+import ExpoMlKit, { type ExpoMlKitNative } from './ExpoMlKitModule';
 import {
   bestText,
   confidentText,
@@ -13,11 +13,11 @@ import {
 } from './textQuality';
 
 export * from './ExpoMlKit.types';
+export * from './artifacts';
 
 /**
  * Whether ML Kit can analyse on this device: the module is linked and its
- * models are (not on an iOS simulator). The capability the app plans the
- * `mlKit*` cells on — a device without it never records them.
+ * models are (not on an iOS simulator, where Google ships no build).
  */
 export function isMlKitAvailable(): boolean {
   return ExpoMlKit?.isAvailable === true;
@@ -66,9 +66,9 @@ export async function analyzeImage(
 }
 
 /** ML Kit Face Detection, as Apple Vision `FaceObservation`s — the same
- *  shape on Android and iOS: the `mlKitFaces` cell. On iOS Apple Vision's
- *  faces fill their own cell beside it, and a face both found is merged when
- *  read (`faceMerge.ts` in the app). */
+ *  shape on Android and iOS, so faces from either detector feed one face
+ *  pipeline. Both detectors box one face in one place (the cross-detector
+ *  device suite), so a caller can pair them by overlap. */
 export function detectFaces(path: string): Promise<FaceObservation[]> {
   return native().detectFaces(path);
 }

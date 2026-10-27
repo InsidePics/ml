@@ -17,10 +17,9 @@ android {
   }
 }
 
-// BUNDLED ML Kit artifacts only (the model ships in the APK), so a result's
-// version stamp names the model that produced it. Each line is pinned to
-// `ML_KIT_ARTIFACTS` in packages/shared/src/ml/modelVersions.ts (the
-// `mlKitArtifacts` test); bump the model's `ML_KIT_MODEL_VERSIONS` with it.
+// BUNDLED ML Kit artifacts only (the model ships in the APK), so a result
+// names the model that produced it. Each line is pinned to `ML_KIT_ARTIFACTS`
+// in src/artifacts.ts (the `mlKitArtifacts` test).
 dependencies {
   implementation 'com.google.mlkit:text-recognition:16.0.1'
   implementation 'com.google.mlkit:text-recognition-chinese:16.0.1'

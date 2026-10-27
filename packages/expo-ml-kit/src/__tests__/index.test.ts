@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import {
+  analyzeImage,
+  detectBarcodes,
+  detectFaces,
+  isMlKitAvailable,
+} from '../index';
+import { OTHER_TEXT_SCRIPTS } from '../textQuality';
+
 const native = vi.hoisted(() => ({
   module: null as Record<string, ReturnType<typeof vi.fn>> | null,
 }));
@@ -8,14 +16,6 @@ vi.mock('../ExpoMlKitModule', () => ({
     return native.module;
   },
 }));
-
-import {
-  analyzeImage,
-  detectBarcodes,
-  detectFaces,
-  isMlKitAvailable,
-} from '../index';
-import { OTHER_TEXT_SCRIPTS } from '../textQuality';
 
 const read = (...lines: string[]) => ({ text: lines.join('\n'), blocks: [] });
 const analysis = (text = read()) => ({
@@ -28,15 +28,16 @@ const analysis = (text = read()) => ({
   objects: [],
 });
 
-let mod: Record<string, ReturnType<typeof vi.fn>>;
+const nativeModule = () => ({
+  analyzeImage: vi.fn().mockResolvedValue(analysis()),
+  recognizeText: vi.fn().mockResolvedValue([]),
+  extractEntities: vi.fn().mockResolvedValue([]),
+  detectFaces: vi.fn().mockResolvedValue([{ confidence: 1 }]),
+  detectBarcodes: vi.fn().mockResolvedValue([{ format: 'QR_CODE' }]),
+});
+let mod: ReturnType<typeof nativeModule>;
 beforeEach(() => {
-  mod = {
-    analyzeImage: vi.fn().mockResolvedValue(analysis()),
-    recognizeText: vi.fn().mockResolvedValue([]),
-    extractEntities: vi.fn().mockResolvedValue([]),
-    detectFaces: vi.fn().mockResolvedValue([{ confidence: 1 }]),
-    detectBarcodes: vi.fn().mockResolvedValue([{ format: 'QR_CODE' }]),
-  };
+  mod = nativeModule();
   native.module = mod;
 });
 
