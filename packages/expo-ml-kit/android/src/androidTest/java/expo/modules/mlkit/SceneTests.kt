@@ -63,7 +63,6 @@ class SceneTests {
     assertEquals(0, result["objects"].list().size)
     assertTrue(result["labels"].list().any { it["text"] == "Dog" })
   }
-  }
 
   @Test fun poseFindsAllThirtyThreeLandmarks() {
     val poses = analyze("body.jpg", setOf("mlKitPoses"))["poses"].list()
