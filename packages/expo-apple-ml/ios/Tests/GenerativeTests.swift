@@ -12,6 +12,7 @@ final class GenerativeTests: VisionTestCase {
       throw XCTSkip("Foundation Models requires iOS 26+")
     }
     try XCTSkipIf(isSimulator, "Foundation Models requires Apple Intelligence device")
+    try XCTSkipIf(isVirtualMachine, "Foundation Models does not run in a virtual Mac")
     let result = VisionModern.isFoundationModelAvailable()
     XCTAssertTrue(result, "Foundation Model should be available on iOS 26 device with Apple Intelligence")
   }
@@ -80,6 +81,7 @@ final class GenerativeTests: VisionTestCase {
 
   func testTranscribeAudio_transcribesRealSpeech() throws {
     try XCTSkipIf(isSimulator, "SpeechAnalyzer requires device")
+    try XCTSkipIf(isVirtualMachine, "SpeechAnalyzer does not run in a virtual Mac")
     guard #available(iOS 26.0, *) else {
       throw XCTSkip("SpeechAnalyzer requires iOS 26+")
     }

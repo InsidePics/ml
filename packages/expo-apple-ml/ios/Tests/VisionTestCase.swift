@@ -27,6 +27,16 @@ class VisionTestCase: XCTestCase {
     #endif
   }
 
+  /// A virtual Mac (GitHub Actions' runners): Apple's models compile for its
+  /// CPU only, so Foundation Models and SpeechAnalyzer are unavailable there
+  /// ("On-device compilation within a VM only supports CPU"). Real Macs and
+  /// the iPhone run them.
+  var isVirtualMachine: Bool {
+    var present: Int32 = 0
+    var size = MemoryLayout<Int32>.size
+    return sysctlbyname("kern.hv_vmm_present", &present, &size, nil, 0) == 0 && present == 1
+  }
+
   func fixturePath(_ name: String) -> String {
     FixturePaths.path(name)
   }
