@@ -1,6 +1,10 @@
 // The packages' JS API, through Expo's bridge, on a device.
-import './apple.test';
+import { Platform } from 'react-native';
+
 import './mlkit.test';
 import './tools.test';
+
+// expo-apple-intelligence's import throws where its module is not linked.
+if (Platform.OS === 'ios') require('./apple.test');
 
 export { runAll } from './runner';

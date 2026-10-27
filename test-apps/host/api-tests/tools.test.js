@@ -1,4 +1,3 @@
-import * as Apple from '@insidepics/expo-apple-intelligence';
 import {
   histogram,
   imageSize,
@@ -14,9 +13,13 @@ import { load } from './images';
 import { assert, assertEqual, assertRejects, test } from './runner';
 
 const IOS = Platform.OS === 'ios';
+// expo-apple-intelligence's import throws where its module is not linked.
+const Apple = IOS
+  ? require('@insidepics/expo-apple-intelligence').default
+  : null;
 /** Faces from the platform's detector; both return Vision's face shape. */
 const detectFaces = (image) =>
-  IOS ? Apple.default.detectFaces(image) : MlKit.detectFaces(image);
+  IOS ? Apple.detectFaces(image) : MlKit.detectFaces(image);
 
 const CLIP = { mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225] };
 const FACE_TARGETS = [
@@ -116,14 +119,26 @@ test('tools: a face aligned by warp feeds a tensor, sharpness, and both detector
     'in [-1, 1]'
   );
   assert((await sharpness(crop)) > 0, 'sharpness');
+  // The same alignment with a margin is a face to both detectors (Android's
+  // ML Kit finds none in a crop as tight as the 112 one; iOS's does).
+  const margin = 28;
+  const wide = await warp(
+    image,
+    similarityTransform(
+      src,
+      FACE_TARGETS.map(([x, y]) => [x + margin, y + margin])
+    ),
+    112 + 2 * margin,
+    112 + 2 * margin
+  );
   assertEqual(
-    (await MlKit.detectFaces(crop)).length,
+    (await MlKit.detectFaces(wide)).length,
     1,
     'ML Kit finds the aligned face'
   );
   if (IOS)
     assertEqual(
-      (await Apple.default.detectFaces(crop)).length,
+      (await Apple.detectFaces(wide)).length,
       1,
       'Apple finds the aligned face'
     );

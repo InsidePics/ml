@@ -1,6 +1,8 @@
 import { Asset } from 'expo-asset';
 import { ImageManipulator } from 'expo-image-manipulator';
 
+import app from '../app.json';
+
 /** The repository's fixtures, bundled into the app by Metro. */
 const FIXTURES = {
   'face.jpg': require('../../../fixtures/face.jpg'),
@@ -14,11 +16,15 @@ const FIXTURES = {
   'landscape.jpg': require('../../../fixtures/landscape.jpg'),
 };
 
-/** The fixture's file on the device. */
+/** The fixture on the device. An Android release build ships images as
+ *  drawable resources, which expo-asset names without a scheme. */
 export async function fixtureUri(name) {
   const asset = Asset.fromModule(FIXTURES[name]);
   await asset.downloadAsync();
-  return asset.localUri;
+  const uri = asset.localUri;
+  return uri.includes(':')
+    ? uri
+    : `android.resource://${app.expo.android.package}/drawable/${uri}`;
 }
 
 /** The fixture decoded once into an image handle, as an app would. */
