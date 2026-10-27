@@ -47,10 +47,15 @@ object FaceAnalyzer {
     "lowerLipTop" to FaceContour.LOWER_LIP_TOP,
   )
 
-  fun detect(image: InputImage): List<Map<String, Any>> =
-    awaitDetector(detector.process(image)).map {
-      FaceMapping.toObservation(raw(it), image.width, image.height)
+  fun detect(image: InputImage): List<Map<String, Any>> {
+    val faces = awaitDetector(detector.process(image))
+    val boxes = faces.map {
+      with(it.boundingBox) { Geometry.Box(left.toDouble(), top.toDouble(), right.toDouble(), bottom.toDouble()) }
     }
+    return Geometry.outermost(boxes).map {
+      FaceMapping.toObservation(raw(faces[it]), image.width, image.height)
+    }
+  }
 
   private fun pt(p: PointF) = FaceMapping.Pt(p.x.toDouble(), p.y.toDouble())
 

@@ -71,6 +71,20 @@ final class FaceTests: MlKitTestCase {
     XCTAssertEqual(try detectFaces("landscape.jpg").count, 0)
   }
 
+  func testDetect_findsOneFaceInATwelveMegapixelPortrait() throws {
+    // The fixture as a phone's 12 MP portrait; analysed at 1536×2048, where
+    // the accurate detector also boxes the face's lower half.
+    let face = try image("face.jpg")
+    let size = CGSize(width: 3024, height: 4032)
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1
+    let photo = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+      face.draw(in: CGRect(origin: .zero, size: size))
+    }
+    let prepared = try XCTUnwrap(AnalysisImage.prepare(photo))
+    XCTAssertEqual(try background { try FaceAnalyzer.detect(prepared) }.count, 1)
+  }
+
   func testDetect_reportsHeadAnglesInRadians() throws {
     let face = try XCTUnwrap(detectFaces("face.jpg").first)
     for angle in ["roll", "yaw", "pitch"] {
