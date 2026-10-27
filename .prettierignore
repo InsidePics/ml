@@ -1,0 +1,3 @@
+# Written by the tests' record mode (RECORD_FIXTURE=1), byte for byte.
+fixtures/expected/
+packages/*/android/src/test/fixtures/

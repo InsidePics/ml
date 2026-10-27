@@ -1,11 +1,7 @@
 import Apple from '@insidepics/expo-apple-intelligence';
-import { Platform } from 'react-native';
 
 import { load } from './images';
-import { assert, assertEqual, assertRejects, test as anyTest } from './runner';
-
-// Apple Intelligence is iOS only.
-const test = Platform.OS === 'ios' ? anyTest : () => {};
+import { assert, assertEqual, assertRejects, test } from './runner';
 
 test('apple: analyzeImage finds the face, upright size, every part', async () => {
   const image = await load('face.jpg');

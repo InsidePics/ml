@@ -28,11 +28,13 @@ cd "$host"
 log="$(mktemp)"
 for _ in $(seq 1 120); do
   sleep 5
-  "${adb[@]}" logcat -d -s ReactNativeJS:V > "$log"
+  "${adb[@]}" logcat -d -s ReactNativeJS:V AndroidRuntime:E > "$log"
   grep -q 'API_DONE' "$log" && break
+  # A crash, in JS before the suite starts or in the app's process, ends it.
+  grep -qE "runtime not ready|Process: $package" "$log" && break
 done
 grep -q 'API_DONE' "$log" || {
-  echo "No results from the device within 10 minutes. Last log lines:" >&2
+  echo "No results from the device (crashed, or none within 10 minutes):" >&2
   tail -20 "$log" >&2
   exit 1
 }

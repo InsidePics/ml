@@ -23,11 +23,11 @@ class ExpoMlKitModule : Module() {
     Constant("isAvailable") { true }
 
     AsyncFunction("analyzeImage") { image: SharedRef<Bitmap>, models: List<String>, promise: Promise ->
-      withImage(image, promise) { analyze(it, models.toSet()) }
+      withImage(image, promise) { MlKitAnalyzer.analyze(it, models.toSet()) }
     }
 
     AsyncFunction("recognizeText") { image: SharedRef<Bitmap>, scripts: List<String>, promise: Promise ->
-      withImage(image, promise) { input -> scripts.map { TextAnalyzer.recognize(input, it) } }
+      withImage(image, promise) { MlKitAnalyzer.recognize(it, scripts) }
     }
 
     // No image: the text TS chose, its confident lines only.
@@ -44,36 +44,11 @@ class ExpoMlKitModule : Module() {
     }
   }
 
-  /** The detectors `models` (`mlKit*` cell ids) need, over one image; any
-   *  other model's part is empty. Text is the Latin recognizer's; entities
-   *  are TS's to find (`extractEntities`) in the text it settles on. */
-  private fun analyze(image: InputImage, models: Set<String>): Map<String, Any> {
-    fun <T> ifDue(model: String, empty: T, run: () -> T): T = if (model in models) run() else empty
-    val wantsText = "mlKitText" in models || "mlKitEntities" in models
-    return mapOf(
-      "imageWidth" to image.width,
-      "imageHeight" to image.height,
-      "text" to if (wantsText) TextAnalyzer.recognize(image, "latin")
-        else mapOf("text" to "", "blocks" to emptyList<Any>()),
-      "labels" to ifDue("mlKitLabels", emptyList()) { LabelAnalyzer.label(image) },
-      "barcodes" to ifDue("mlKitBarcodes", emptyList()) { BarcodeAnalyzer.scan(image) },
-      "poses" to ifDue("mlKitPoses", emptyList()) { PoseAnalyzer.detect(image) },
-      "objects" to ifDue("mlKitObjects", emptyList()) { ObjectAnalyzer.detect(image) },
-    )
-  }
-
-  /** [onQueue] over the handle's bitmap, prepared for ML Kit; a copy made
-   *  for it is recycled, the handle's own bitmap never. */
+  /** [onQueue] over the handle's bitmap, as [AnalysisBitmap.analyze]
+   *  hands it to ML Kit. */
   private fun withImage(image: SharedRef<Bitmap>, promise: Promise, run: (InputImage) -> Any) {
     val source = image.ref
-    onQueue(promise) {
-      val bitmap = AnalysisBitmap.prepare(source)
-      try {
-        run(InputImage.fromBitmap(bitmap, 0))
-      } finally {
-        if (bitmap !== source) bitmap.recycle()
-      }
-    }
+    onQueue(promise) { AnalysisBitmap.analyze(source, run) }
   }
 
   /** Resolve with `run`'s result off the calling thread: ML Kit's
