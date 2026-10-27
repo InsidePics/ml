@@ -45,13 +45,23 @@ class SceneTests {
     }
   }
 
-  @Test fun objectsBoxTheDog() {
-    val objects = analyze("animal.jpg", setOf("mlKitObjects"))["objects"].list()
+  @Test fun objectsBoxThePeople() {
+    val objects = analyze("body.jpg", setOf("mlKitObjects"))["objects"].list()
     assertTrue(objects.isNotEmpty())
     for (obj in objects) {
       assertUnitRect(obj["boundingBox"], "object box")
       assertNotNull(obj["labels"] as? List<*>)
     }
+  }
+
+  /** Known limitation, pinned: ML Kit's object detector boxes nothing in the
+   *  lying dog, in any of its modes, though its labels name the dog. If this
+   *  fails, Google's model has changed: look, then move the dog to the test
+   *  above. */
+  @Test fun objectsBoxNoDogLyingInGrass() {
+    val result = analyze("animal.jpg", setOf("mlKitObjects", "mlKitLabels"))
+    assertEquals(0, result["objects"].list().size)
+    assertTrue(result["labels"].list().any { it["text"] == "Dog" })
   }
 
   @Test fun poseFindsAllThirtyThreeLandmarks() {

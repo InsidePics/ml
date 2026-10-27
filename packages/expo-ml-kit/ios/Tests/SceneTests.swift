@@ -45,14 +45,25 @@ final class SceneTests: MlKitTestCase {
     }
   }
 
-  func testObjects_boxTheDog() throws {
+  func testObjects_boxThePeople() throws {
     let objects = try XCTUnwrap(
-      analyze("animal.jpg", ["mlKitObjects"])["objects"] as? [[String: Any]])
+      analyze("body.jpg", ["mlKitObjects"])["objects"] as? [[String: Any]])
     XCTAssertGreaterThanOrEqual(objects.count, 1)
     for object in objects {
       assertUnitRect(object["boundingBox"], "object box")
       XCTAssertNotNil(object["labels"] as? [[String: Any]])
     }
+  }
+
+  /// Known limitation, pinned: ML Kit's object detector boxes nothing in the
+  /// lying dog, in any of its modes, though its labels name the dog. If this
+  /// fails, Google's model has changed: look, then move the dog to the test
+  /// above.
+  func testObjects_boxNoDogLyingInGrass() throws {
+    let result = try analyze("animal.jpg", ["mlKitObjects", "mlKitLabels"])
+    XCTAssertEqual((result["objects"] as? [[String: Any]])?.count, 0)
+    let labels = try XCTUnwrap(result["labels"] as? [[String: Any]])
+    XCTAssertTrue(labels.contains { $0["text"] as? String == "Dog" }, "\(labels)")
   }
 
   // MARK: - Pose

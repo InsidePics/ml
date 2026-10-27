@@ -60,9 +60,8 @@ enum FaceAnalyzer {
   static func detect(_ image: UIImage) throws -> [[String: Any]] {
     let w = Double(image.size.width)
     let h = Double(image.size.height)
-    return try detector.results(in: MlKitAnalyzer.visionImage(image)).map {
-      observation($0, w, h)
-    }
+    let faces = try detector.results(in: MlKitAnalyzer.visionImage(image))
+    return FaceBoxes.outermost(faces.map(\.frame)).map { observation(faces[$0], w, h) }
   }
 
   private static func pt(_ p: VisionPoint) -> CGPoint { CGPoint(x: p.x, y: p.y) }
