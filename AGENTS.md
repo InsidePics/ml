@@ -24,11 +24,11 @@ templates and model files are the caller's.
 
 ## Gates (local until the repo is public)
 
-| Command | What | When |
-|---|---|---|
-| `pnpm gate` | lint, format, line limits, types, TS tests, Kotlin JVM tests, Swift on macOS | pre-push hook, every PR |
-| `pnpm test:device:ios <udid> <team>` | every package's XCTests on an iPhone, one host app | every PR touching native or fixtures |
-| `pnpm test:android` | every package's instrumented tests on an emulator | every PR touching native or fixtures |
+| Command                              | What                                                                         | When                                 |
+| ------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------ |
+| `pnpm gate`                          | lint, format, line limits, types, TS tests, Kotlin JVM tests, Swift on macOS | pre-push hook, every PR              |
+| `pnpm test:device:ios <udid> <team>` | every package's XCTests on an iPhone, one host app                           | every PR touching native or fixtures |
+| `pnpm test:android`                  | every package's instrumented tests on an emulator                            | every PR touching native or fixtures |
 
 A device or emulator run writes `.device-results/<platform>-<sha>.json`; a
 release requires a passing result for the exact commit being released.
