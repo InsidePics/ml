@@ -41,8 +41,9 @@ Bump the package's `version`, merge to `main`, then tag that commit
 `<directory>@<version>` (e.g. `expo-ml-kit@0.2.0`) and push the tag.
 `.github/workflows/publish.yml` checks that the commit is on `main` and
 carries both device statuses, runs the gate, and publishes through npm
-trusted publishing. Each package is published as a fresh tag; none is
-published from a laptop.
+trusted publishing. Nothing is published from a laptop, except a new
+package's first version: npm trusts a workflow only for a package that
+exists (then add the trusted publisher in the package's npm settings).
 
 Skips are allowed only where the platform cannot run the code (the iOS
 simulator has no ML Kit and no Neural Engine). A test that cannot reach what
