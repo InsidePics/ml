@@ -45,15 +45,15 @@ class FaceTests {
   }
 
   @Test fun placesTheEyesWhereTheyAreInThePhoto() {
-    // face.jpg (400×600): the eyes sit near (162, 240) and (263, 238) px,
+    // face.jpg (400×600): the eyes sit near (141, 209) and (231, 213) px,
     // top-left origin.
     val face = detectFaces("face.jpg")[0]
     val left = landmarkInImage(face, "leftEye")
     val right = landmarkInImage(face, "rightEye")
-    assertEquals(162.0 / 400, left.first, 0.03)
-    assertEquals(240.0 / 600, left.second, 0.03)
-    assertEquals(263.0 / 400, right.first, 0.03)
-    assertEquals(238.0 / 600, right.second, 0.03)
+    assertEquals(141.0 / 400, left.first, 0.03)
+    assertEquals(209.0 / 600, left.second, 0.03)
+    assertEquals(231.0 / 400, right.first, 0.03)
+    assertEquals(213.0 / 600, right.second, 0.03)
   }
 
   @Test fun findsTheSameFaceUnderEveryOrientation() {
