@@ -9,6 +9,12 @@
 # Each package's suite is its own test APK, with the repository's fixtures as
 # assets. On success the result lands in .device-results/android-<sha>.json,
 # which a release requires.
+#
+# The Android 17 (API 37) emulator image needs two things to stay up:
+# - `hw.gps=no` in the AVD's config.ini: its GNSS driver hangs the system
+#   server at boot, and the watchdog restarts it every minute;
+# - `emulator -avd <name> -no-window -gpu swiftshader_indirect`: with the
+#   host GPU, the emulator itself aborts mid-run.
 set -euo pipefail
 
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
