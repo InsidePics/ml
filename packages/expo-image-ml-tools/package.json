@@ -1,0 +1,47 @@
+{
+  "name": "@insidepics/expo-image-ml-tools",
+  "version": "0.1.0",
+  "description": "Model inputs from an Expo image handle: tensors, warps, sharpness and histograms, identical on iOS and Android.",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "expo-module build",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:swift": "swift test",
+    "test:kotlin": "bash android/src/test/run-jvm.sh"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "machine-learning",
+    "tensor",
+    "image"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InsidePics/ml.git",
+    "directory": "packages/expo-image-ml-tools"
+  },
+  "author": "INSP LLC",
+  "license": "MIT",
+  "files": [
+    "build",
+    "src",
+    "ios/*.swift",
+    "ios/*.podspec",
+    "android/build.gradle",
+    "android/src/main",
+    "expo-module.config.json"
+  ],
+  "peerDependencies": {
+    "expo": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "expo": "^57.0.31",
+    "expo-module-scripts": "^56.0.3",
+    "react-native": "^0.87.1"
+  }
+}

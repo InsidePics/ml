@@ -1,0 +1,5 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": { "modules": ["ExpoImageMlToolsModule"] },
+  "android": { "modules": ["expo.modules.imagemltools.ExpoImageMlToolsModule"] }
+}

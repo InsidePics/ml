@@ -26,6 +26,7 @@ host="$root/test-apps/host"
 pods=(
   "ExpoAppleIntelligence:expo-apple-intelligence"
   "ExpoMlKit:expo-ml-kit"
+  "ExpoImageMlTools:expo-image-ml-tools"
 )
 
 cd "$host"

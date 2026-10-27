@@ -43,6 +43,18 @@ importers:
         specifier: 0.87.1
         version: 0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@types/react@19.2.18)(react@19.3.1)(supports-color@8.1.1)
 
+  packages/expo-image-ml-tools:
+    devDependencies:
+      expo:
+        specifier: ^57.0.31
+        version: 57.0.31(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@57.0.1)(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@types/react@19.2.18)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)(typescript@6.0.3)
+      expo-module-scripts:
+        specifier: ^56.0.3
+        version: 56.0.3(@babel/core@7.29.7(supports-color@8.1.1))(@jest/transform@29.7.0(supports-color@8.1.1))(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(eslint@9.39.5(supports-color@8.1.1))(expo@57.0.31)(jest-util@29.7.0)(jest@29.7.0(@types/node@24.19.2)(supports-color@8.1.1))(prettier@2.8.8)(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@types/react@19.2.18)(react@19.3.1)(supports-color@8.1.1))(react-test-renderer@19.2.3(react@19.3.1))(react@19.3.1)(supports-color@8.1.1)(typescript@6.0.3)
+      react-native:
+        specifier: ^0.87.1
+        version: 0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@types/react@19.2.18)(react@19.3.1)(supports-color@8.1.1)
+
   packages/expo-ml-kit:
     dependencies:
       react:
@@ -64,6 +76,9 @@ importers:
       '@insidepics/expo-apple-intelligence':
         specifier: workspace:*
         version: link:../../packages/expo-apple-intelligence
+      '@insidepics/expo-image-ml-tools':
+        specifier: workspace:*
+        version: link:../../packages/expo-image-ml-tools
       '@insidepics/expo-ml-kit':
         specifier: workspace:*
         version: link:../../packages/expo-ml-kit
@@ -1378,9 +1393,6 @@ packages:
 
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
-
-  '@types/node@26.6.5':
-    resolution: {integrity: sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg==}
 
   '@types/react@19.2.18':
     resolution: {integrity: sha512-AnzbBERsrLKtk2XSfTbYRLjQPdy116Sty4q+T+Bp3IC4l6jNBvreVPAHmpq9qhXQM7CXZPjLVmGMw9sy+hxQ3w==}
@@ -4398,9 +4410,6 @@ packages:
   undici-types@7.24.6:
     resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
 
-  undici-types@8.9.0:
-    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
-
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
     engines: {node: '>=4'}
@@ -6167,7 +6176,7 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 26.6.5
+      '@types/node': 24.19.2
       jest-mock: 29.7.0
 
   '@jest/expect-utils@29.7.0':
@@ -6185,7 +6194,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 26.6.5
+      '@types/node': 24.19.2
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -6585,7 +6594,7 @@ snapshots:
 
   '@types/jsdom@20.0.1':
     dependencies:
-      '@types/node': 26.6.5
+      '@types/node': 24.19.2
       '@types/tough-cookie': 4.0.5
       parse5: 7.3.0
 
@@ -6600,10 +6609,6 @@ snapshots:
   '@types/node@24.19.2':
     dependencies:
       undici-types: 7.24.6
-
-  '@types/node@26.6.5':
-    dependencies:
-      undici-types: 8.9.0
 
   '@types/react@19.2.18':
     dependencies:
@@ -8726,7 +8731,7 @@ snapshots:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
       '@types/jsdom': 20.0.1
-      '@types/node': 26.6.5
+      '@types/node': 24.19.2
       jest-mock: 29.7.0
       jest-util: 29.7.0
       jsdom: 20.0.3(supports-color@8.1.1)
@@ -8740,7 +8745,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 26.6.5
+      '@types/node': 24.19.2
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -8823,7 +8828,7 @@ snapshots:
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 26.6.5
+      '@types/node': 24.19.2
       jest-util: 29.7.0
 
   jest-pnp-resolver@1.2.3(jest-resolve@29.7.0):
@@ -8968,7 +8973,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 26.6.5
+      '@types/node': 24.19.2
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -10572,8 +10577,6 @@ snapshots:
   undici-types@6.21.0: {}
 
   undici-types@7.24.6: {}
-
-  undici-types@8.9.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 

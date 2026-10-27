@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@insidepics/expo-apple-intelligence": "workspace:*",
+    "@insidepics/expo-image-ml-tools": "workspace:*",
     "@insidepics/expo-ml-kit": "workspace:*",
     "expo": "~57.0.31",
     "expo-image-manipulator": "~57.0.21",
