@@ -1,12 +1,25 @@
-# @insidepics/expo-apple-intelligence
+# expo-apple-ml — Apple Intelligence for Expo and React Native
 
-[![npm version](https://img.shields.io/npm/v/@insidepics/expo-apple-intelligence.svg)](https://www.npmjs.com/package/@insidepics/expo-apple-intelligence)
-[![npm downloads](https://img.shields.io/npm/dm/@insidepics/expo-apple-intelligence.svg)](https://www.npmjs.com/package/@insidepics/expo-apple-intelligence)
-[![license: MIT](https://img.shields.io/npm/l/@insidepics/expo-apple-intelligence.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/expo-apple-ml.svg)](https://www.npmjs.com/package/expo-apple-ml)
+[![npm downloads](https://img.shields.io/npm/dm/expo-apple-ml.svg)](https://www.npmjs.com/package/expo-apple-ml)
+[![license: MIT](https://img.shields.io/npm/l/expo-apple-ml.svg)](./LICENSE)
 
-An Expo native module exposing Apple's on-device intelligence APIs — Foundation Models, Vision, Speech, and Image Playground — to React Native / Expo.
+**Apple Intelligence and Apple's on-device machine learning in Expo / React
+Native apps.** One native module for the Apple Intelligence on-device
+language model (Foundation Models), Apple Vision (OCR, face detection, image
+classification, barcodes and QR codes, body and hand pose, animals, document
+recognition, aesthetics), SpeechAnalyzer speech-to-text, and Image Playground
+image generation.
 
-All processing runs locally on the device. Nothing is sent to the network. Features that depend on newer OS releases are availability-gated at runtime: when a capability is unavailable (older OS, unsupported hardware, or model not yet downloaded), the corresponding call resolves to `null` rather than throwing, so you can degrade gracefully.
+All processing runs locally on the iPhone, iPad or Mac. Nothing is sent to
+the network, and no API key is needed. Features that depend on newer OS
+releases or on Apple Intelligence hardware are availability-gated at
+runtime: when a capability is unavailable (older OS, unsupported hardware,
+Apple Intelligence turned off, or the model not yet downloaded), the call
+resolves to `null` rather than throwing, so you can degrade gracefully.
+
+Formerly `@insidepics/expo-apple-intelligence` (0.1.0–0.3.1), which is
+deprecated in favour of this package.
 
 ## Features
 
@@ -60,7 +73,7 @@ Grouped by the Apple framework that backs each capability, with the minimum OS v
 ## Installation
 
 ```sh
-npx expo install @insidepics/expo-apple-intelligence
+npx expo install expo-apple-ml
 ```
 
 Then regenerate the native project and rebuild the dev client:
@@ -76,11 +89,8 @@ If you manage the iOS project directly, run `npx pod-install` after installing.
 ## Usage
 
 ```ts
-import ExpoAppleIntelligence from '@insidepics/expo-apple-intelligence';
-import type {
-  ImageAnalysisResult,
-  TextObservation,
-} from '@insidepics/expo-apple-intelligence';
+import ExpoAppleIntelligence from 'expo-apple-ml';
+import type { ImageAnalysisResult, TextObservation } from 'expo-apple-ml';
 import { ImageManipulator } from 'expo-image-manipulator';
 
 // Decode once; every module that takes an Expo image handle reads it.
@@ -167,9 +177,10 @@ All result types (`FaceObservation`, `TextObservation`, `ImageAnalysisResult`, `
 ## Contributing
 
 This package lives in [InsidePics/ml](https://github.com/InsidePics/ml),
-beside `@insidepics/expo-ml-kit` and `@insidepics/expo-image-ml-tools`
-(0.1.0–0.3.1 were published from the archived
-`InsidePics/expo-apple-intelligence`). See that repository's README for the
+beside [`expo-ml-kit`](https://www.npmjs.com/package/expo-ml-kit) and
+[`expo-image-ml-tools`](https://www.npmjs.com/package/expo-image-ml-tools)
+(`@insidepics/expo-apple-intelligence` 0.1.0–0.3.1 were published from the
+archived `InsidePics/expo-apple-intelligence`). See that repository's README for the
 gate, the device suites and releasing. The native Swift sources live in
 `ios/`, the TypeScript surface in `src/`; keep the `@available` gates in the
 Swift code and the minimum-OS values in this README in sync.

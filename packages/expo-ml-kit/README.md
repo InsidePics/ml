@@ -1,22 +1,25 @@
-# @insidepics/expo-ml-kit
+# expo-ml-kit
 
-Google ML Kit's on-device image analysis for Expo: text, image labels,
-barcodes, body poses, objects, entities, and face detection, on Android and
-iOS. Every model runs on the device with a bundled model (no Play services
+Google ML Kit's on-device image analysis for Expo and React Native: text
+recognition (OCR), image labeling, barcode and QR code scanning, pose
+detection, object detection, entity extraction, and face detection, on
+Android and iOS. It covers ML Kit's photo analysis; ML Kit's segmentation,
+document scanner, digital ink, translation, smart reply and GenAI APIs are
+not included. Every model runs on the device with a bundled model (no Play services
 download), except entity extraction's per-language model, which ML Kit
 downloads at first use.
 
 ## Install
 
 ```sh
-npx expo install @insidepics/expo-ml-kit expo-image-manipulator
+npx expo install expo-ml-kit expo-image-manipulator
 ```
 
 Add the config plugin to `app.json`, then rebuild the native app (a
 development build; it does not run in Expo Go):
 
 ```json
-{ "expo": { "plugins": ["@insidepics/expo-ml-kit"] } }
+{ "expo": { "plugins": ["expo-ml-kit"] } }
 ```
 
 The plugin raises Android's `minSdkVersion` to 26 (entity extraction's
@@ -27,7 +30,7 @@ none. On a simulator `isMlKitAvailable()` is `false`.
 
 ```ts
 import { ImageManipulator } from 'expo-image-manipulator';
-import * as MlKit from '@insidepics/expo-ml-kit';
+import * as MlKit from 'expo-ml-kit';
 
 const photo = await ImageManipulator.manipulate(uri).renderAsync();
 try {
@@ -45,7 +48,7 @@ try {
 ```
 
 Every function takes an Expo image handle (`ImageRef`): from
-`expo-image-manipulator`, `expo-image`, or `@insidepics/expo-image-ml-tools`'
+`expo-image-manipulator`, `expo-image`, or `expo-image-ml-tools`'
 `warp`. The image is analysed upright, its longer side capped at 2048 px; a
 path or a released handle is refused.
 

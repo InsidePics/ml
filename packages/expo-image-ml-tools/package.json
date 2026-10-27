@@ -1,5 +1,5 @@
 {
-  "name": "@insidepics/expo-image-ml-tools",
+  "name": "expo-image-ml-tools",
   "version": "0.1.0",
   "description": "Model inputs from an Expo image handle: tensors, warps, sharpness and histograms, identical on iOS and Android.",
   "main": "build/index.js",
@@ -13,11 +13,17 @@
     "test:kotlin": "bash android/src/test/run-jvm.sh"
   },
   "keywords": [
-    "react-native",
     "expo",
+    "react-native",
     "machine-learning",
     "tensor",
-    "image"
+    "image",
+    "onnx",
+    "tflite",
+    "clip",
+    "face-alignment",
+    "preprocessing",
+    "on-device"
   ],
   "repository": {
     "type": "git",

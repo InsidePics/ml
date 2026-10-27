@@ -4,7 +4,7 @@ On-device ML for Expo apps, as small native modules that share one image
 handle (Expo's `SharedRef<'image'>`: a `UIImage` on iOS, a `Bitmap` on
 Android):
 
-- `packages/expo-apple-intelligence`: Apple Vision, Foundation Models,
+- `packages/expo-apple-ml`: Apple Vision, Foundation Models,
   SpeechAnalyzer, Image Playground (iOS).
 - `packages/expo-ml-kit`: Google ML Kit image analysis (Android and iOS).
 - `packages/expo-image-ml-tools`: model inputs from an image handle (tensor,

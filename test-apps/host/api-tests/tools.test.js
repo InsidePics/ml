@@ -5,18 +5,16 @@ import {
   similarityTransform,
   toTensor,
   warp,
-} from '@insidepics/expo-image-ml-tools';
-import * as MlKit from '@insidepics/expo-ml-kit';
+} from 'expo-image-ml-tools';
+import * as MlKit from 'expo-ml-kit';
 import { Platform } from 'react-native';
 
 import { load } from './images';
 import { assert, assertEqual, assertRejects, test } from './runner';
 
 const IOS = Platform.OS === 'ios';
-// expo-apple-intelligence's import throws where its module is not linked.
-const Apple = IOS
-  ? require('@insidepics/expo-apple-intelligence').default
-  : null;
+// expo-apple-ml's import throws where its module is not linked.
+const Apple = IOS ? require('expo-apple-ml').default : null;
 /** Faces from the platform's detector; both return Vision's face shape. */
 const detectFaces = (image) =>
   IOS ? Apple.detectFaces(image) : MlKit.detectFaces(image);
