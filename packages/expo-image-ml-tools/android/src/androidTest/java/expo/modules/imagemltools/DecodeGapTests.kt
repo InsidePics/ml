@@ -58,9 +58,10 @@ class DecodeGapTests {
   }
 
   private companion object {
-    // Measured on an Android 17 emulator: JPEG means 0.03–0.21, HEIC 0.33,
-    // no cell past 2.22. A colour-space or gamma slip moves cells by tens.
+    // `ios/Tests/DecodeGridTests.swift`'s limits. Measured on an Android 17
+    // emulator: JPEG means 0.03–0.21, HEIC 0.33, no cell past 2.22 (an
+    // iPhone 16 Pro reaches 4.9). A colour-space or gamma slip is off by tens.
     const val MEAN_LIMIT = 1.0
-    const val MAX_LIMIT = 5.0
+    const val MAX_LIMIT = 8.0
   }
 }

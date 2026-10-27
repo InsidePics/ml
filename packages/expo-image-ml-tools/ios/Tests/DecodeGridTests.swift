@@ -5,16 +5,22 @@ import XCTest
 /// summarized as the mean colour of a 16×16 grid of cells. Android's
 /// instrumented `DecodeGapTests` compares its own decode against it, which
 /// measures how far the two platforms' decoders (and colour handling) put
-/// the same photo apart. Recorded on a Mac:
+/// the same photo apart; on any Apple device this suite does the same
+/// against the Mac's decode it was recorded from. Recorded on a Mac:
 ///
 ///   RECORD_FIXTURE=1 pnpm --filter @insidepics/expo-image-ml-tools test:swift
 final class DecodeGridTests: XCTestCase {
   static let side = 16
+  // The decoders differ by a little even between a Mac and an iPhone (an
+  // iPhone 16 Pro: up to 4.9 in a cell of barcode.jpg; an Android 17
+  // emulator: 2.2). A colour-space, gamma or orientation slip is off by tens.
+  static let meanLimit = 1.0
+  static let maxLimit = 8.0
   static let names =
     ["face.jpg", "text.jpg", "animal.jpg", "body.jpg", "landscape.jpg", "barcode.jpg"]
     + [1, 3, 6, 8].flatMap { tag in ["jpg", "heic"].map { "face-orientation-\(tag).\($0)" } }
 
-  func testGrid_isTheRecordedOne() throws {
+  func testDecode_staysNearTheRecordedGrid() throws {
     var grids: [String: [Double]] = [:]
     for name in Self.names {
       let rgba = try XCTUnwrap(uprightCGImage(name).flatMap(Pixels.rgba), name)
@@ -31,10 +37,13 @@ final class DecodeGridTests: XCTestCase {
     let stored = try XCTUnwrap((recorded as? [String: Any])?["grids"] as? [String: [Double]])
     for name in Self.names {
       let want = try XCTUnwrap(stored[name], "\(name) not recorded")
-      let got = try XCTUnwrap(grids[name])
-      let worst = zip(want, got).map { abs($0 - $1) }.max() ?? .infinity
-      // Rounded to 2 places when stored.
-      XCTAssertLessThanOrEqual(worst, 0.01, "\(name): off the recorded grid by \(worst)")
+      let gaps = zip(want, try XCTUnwrap(grids[name])).map { abs($0 - $1) }
+      let mean = gaps.reduce(0, +) / Double(gaps.count)
+      let max = gaps.max() ?? .infinity
+      print("DecodeGridTests: \(name): mean \(mean), max \(max) of 255")
+      // Android's DecodeGapTests uses the same limits.
+      XCTAssertLessThan(mean, Self.meanLimit, "\(name): mean gap \(mean) of 255")
+      XCTAssertLessThan(max, Self.maxLimit, "\(name): max gap \(max) of 255")
     }
   }
 }
