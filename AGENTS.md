@@ -35,6 +35,10 @@ A full, clean, passing device or emulator run writes
 status `device/ios` or `device/android` (`scripts/report-device-results.sh`;
 for a run made before the push, push and run it by hand).
 
+Skips are allowed only where the platform cannot run the code (the iOS
+simulator has no ML Kit and no Neural Engine). A test that cannot reach what
+it checks (a model download, a fixture) fails; it never skips.
+
 ## Releasing
 
 Bump the package's `version`, merge to `main`, then tag that commit
@@ -44,10 +48,6 @@ carries both device statuses, runs the gate, and publishes through npm
 trusted publishing. Nothing is published from a laptop, except a new
 package's first version: npm trusts a workflow only for a package that
 exists (then add the trusted publisher in the package's npm settings).
-
-Skips are allowed only where the platform cannot run the code (the iOS
-simulator has no ML Kit and no Neural Engine). A test that cannot reach what
-it checks (a model download, a fixture) fails; it never skips.
 
 ## Fixtures
 
