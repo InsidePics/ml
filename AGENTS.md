@@ -43,9 +43,12 @@ it checks (a model download, a fixture) fails; it never skips.
 
 Bump the package's `version`, merge to `main`, then tag that commit
 `<directory>@<version>` (e.g. `expo-ml-kit@0.2.0`) and push the tag.
-`.github/workflows/publish.yml` checks that the commit is on `main` and
-carries both device statuses, runs the gate, and publishes through npm
-trusted publishing. Nothing is published from a laptop, except a new
+`.github/workflows/publish.yml` checks that the commit is on `main`, runs the
+Android suites on a cloud emulator when the release changes the package's
+Android code, requires a passing iPhone run (`device/ios`) when it changes
+`expo-ml-kit`'s or `expo-apple-ml`'s iOS code, runs the gate, and publishes
+through npm trusted publishing. Device runs remain required for every PR
+touching native code or fixtures (the table above). Nothing is published from a laptop, except a new
 package's first version: npm trusts a workflow only for a package that
 exists (then add the trusted publisher in the package's npm settings).
 
