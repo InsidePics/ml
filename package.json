@@ -1,0 +1,24 @@
+{
+  "name": "insidepics-ml",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "lines": "node scripts/check-lines.mjs",
+    "format:check": "prettier --check \"**/*.{ts,tsx,mjs,js,json,md}\" --ignore-path .gitignore",
+    "lint": "pnpm -r --parallel run lint",
+    "typecheck": "pnpm -r --parallel run typecheck",
+    "test": "pnpm -r run test",
+    "test:kotlin": "pnpm -r run test:kotlin",
+    "test:swift": "pnpm -r run test:swift",
+    "gate": "pnpm lines && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:kotlin && pnpm test:swift",
+    "test:device:ios": "bash scripts/test-device-ios.sh",
+    "build:ios": "bash scripts/test-device-ios.sh --build-only"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "vitest": "4.1.11"
+  }
+}

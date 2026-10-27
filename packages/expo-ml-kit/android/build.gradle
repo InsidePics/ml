@@ -1,0 +1,36 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.mlkit'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.mlkit"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+  lintOptions {
+    abortOnError false
+  }
+}
+
+// BUNDLED ML Kit artifacts only (the model ships in the APK), so a result's
+// version stamp names the model that produced it. Each line is pinned to
+// `ML_KIT_ARTIFACTS` in packages/shared/src/ml/modelVersions.ts (the
+// `mlKitArtifacts` test); bump the model's `ML_KIT_MODEL_VERSIONS` with it.
+dependencies {
+  implementation 'com.google.mlkit:text-recognition:16.0.1'
+  implementation 'com.google.mlkit:text-recognition-chinese:16.0.1'
+  implementation 'com.google.mlkit:text-recognition-devanagari:16.0.1'
+  implementation 'com.google.mlkit:text-recognition-japanese:16.0.1'
+  implementation 'com.google.mlkit:text-recognition-korean:16.0.1'
+  implementation 'com.google.mlkit:image-labeling:17.0.9'
+  implementation 'com.google.mlkit:barcode-scanning:17.3.0'
+  implementation 'com.google.mlkit:pose-detection:18.0.0-beta5'
+  implementation 'com.google.mlkit:object-detection:17.0.2'
+  implementation 'com.google.mlkit:entity-extraction:16.0.0-beta6'
+  implementation 'com.google.mlkit:face-detection:16.1.7'
+}

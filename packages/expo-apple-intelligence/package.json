@@ -1,19 +1,16 @@
 {
   "name": "@insidepics/expo-apple-intelligence",
   "version": "0.3.1",
-  "packageManager": "pnpm@10.19.0",
   "description": "Expo module for Apple Intelligence: Vision, Foundation Models, SpeechAnalyzer, ImagePlayground",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
     "build": "expo-module build",
-    "clean": "expo-module clean",
-    "lint": "expo-module lint",
-    "lint:check": "expo-module lint",
-    "test": "expo-module test --passWithNoTests",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests",
     "prepare": "expo-module prepare",
-    "expo-module": "expo-module",
-    "open:ios": "xed example/ios"
+    "typecheck": "tsc --noEmit",
+    "test:swift": "swift test"
   },
   "keywords": [
     "react-native",
@@ -27,12 +24,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/InsidePics/expo-apple-intelligence.git"
+    "url": "git+https://github.com/InsidePics/ml.git",
+    "directory": "packages/expo-apple-intelligence"
   },
-  "bugs": "https://github.com/InsidePics/expo-apple-intelligence/issues",
+  "bugs": "https://github.com/InsidePics/ml/issues",
   "author": "INSP LLC",
   "license": "MIT",
-  "homepage": "https://github.com/InsidePics/expo-apple-intelligence#readme",
+  "homepage": "https://github.com/InsidePics/ml/tree/main/packages/expo-apple-intelligence#readme",
   "publishConfig": {
     "access": "public"
   },
@@ -46,11 +44,10 @@
   ],
   "devDependencies": {
     "@types/react": "~19.2.10",
-    "expo": "^56.0.12",
+    "expo": "^57.0.31",
     "expo-module-scripts": "^56.0.3",
     "expo-modules-test-core": "^56.0.7",
-    "react-native": "0.85.3",
-    "typescript": "^5.9.3"
+    "react-native": "0.87.1"
   },
   "peerDependencies": {
     "expo": "*",
