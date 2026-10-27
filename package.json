@@ -5,7 +5,7 @@
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "lines": "node scripts/check-lines.mjs",
-    "format:check": "prettier --check \"**/*.{ts,tsx,mjs,js,json,md}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,mjs,js,json,md}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "lint": "pnpm -r --parallel run lint",
     "typecheck": "pnpm -r --parallel run typecheck",
     "test": "pnpm -r run test",
@@ -13,6 +13,7 @@
     "test:swift": "pnpm -r run test:swift",
     "gate": "pnpm lines && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:kotlin && pnpm test:swift",
     "test:device:ios": "bash scripts/test-device-ios.sh",
+    "test:android": "bash scripts/test-android.sh",
     "build:ios": "bash scripts/test-device-ios.sh --build-only",
     "test:api:ios": "bash scripts/test-api-ios.sh",
     "test:api:android": "bash scripts/test-api-android.sh"

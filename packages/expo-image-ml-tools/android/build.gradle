@@ -11,8 +11,24 @@ android {
   defaultConfig {
     versionCode 1
     versionName "0.1.0"
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+  }
+  // The instrumented tests (`pnpm test:android`): the repository's shared
+  // fixtures and test support, neither of which ships.
+  sourceSets {
+    androidTest {
+      assets.srcDirs += "$projectDir/../../../fixtures"
+      java.srcDirs += "$projectDir/../../../test-support/android"
+    }
   }
   lintOptions {
     abortOnError false
   }
+}
+
+dependencies {
+  androidTestImplementation 'androidx.test:runner:1.6.2'
+  androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+  // expo-image-loader's, which decodes expo-image-manipulator's handles.
+  androidTestImplementation 'com.github.bumptech.glide:glide:5.0.5'
 }

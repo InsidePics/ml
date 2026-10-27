@@ -1,6 +1,7 @@
 package expo.modules.mlkit
 
 import android.graphics.Bitmap
+import com.google.mlkit.vision.common.InputImage
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -34,5 +35,16 @@ object AnalysisBitmap {
     val scaled = Bitmap.createScaledBitmap(readable, w, h, true)
     if (readable !== source) readable.recycle()
     return scaled
+  }
+
+  /** `run` over `source` as ML Kit is handed it; a copy made for it is
+   *  recycled after, `source` never. */
+  fun <T> analyze(source: Bitmap, run: (InputImage) -> T): T {
+    val bitmap = prepare(source)
+    try {
+      return run(InputImage.fromBitmap(bitmap, 0))
+    } finally {
+      if (bitmap !== source) bitmap.recycle()
+    }
   }
 }
