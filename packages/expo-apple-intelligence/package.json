@@ -41,7 +41,8 @@
     "expo-module.config.json",
     "README.md",
     "LICENSE",
-    "src"
+    "src",
+    "!**/__tests__"
   ],
   "devDependencies": {
     "@types/react": "~19.2.10",

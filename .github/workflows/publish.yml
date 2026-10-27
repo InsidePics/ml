@@ -1,0 +1,69 @@
+# Publishes one package to npm when its tag is pushed:
+#
+#   git tag expo-ml-kit@0.2.0 <sha> && git push origin expo-ml-kit@0.2.0
+#
+# The tag names the directory under packages/ and the version in its
+# package.json. The tagged commit must be on main, pass the gate, and carry
+# passing device runs from both platforms (`device/ios` and `device/android`,
+# posted by scripts/report-device-results.sh). npm trusts this workflow
+# (trusted publishing): no token, provenance attached.
+name: Publish
+
+on:
+  push:
+    tags: ['expo-*@*']
+
+permissions:
+  contents: read
+  statuses: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag, version, main and device runs agree
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          dir="${tag%@*}"
+          version="${tag##*@}"
+          [ -f "packages/$dir/package.json" ] || { echo "no packages/$dir"; exit 1; }
+          actual="$(node -p "require('./packages/$dir/package.json').version")"
+          [ "$actual" = "$version" ] || { echo "tag $version, package.json $actual"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "$GITHUB_SHA is not on main"; exit 1; }
+          for platform in ios android; do
+            state="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/statuses" \
+              --jq "[.[] | select(.context == \"device/$platform\")][0].state")"
+            [ "$state" = success ] || { echo "device/$platform: ${state:-missing} on $GITHUB_SHA"; exit 1; }
+          done
+          echo "DIR=$dir" >> "$GITHUB_ENV"
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: brew install kotlin
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gate
+
+      - name: Build and publish
+        working-directory: packages/${{ env.DIR }}
+        env:
+          CI: 1
+        run: |
+          pnpm build
+          npm install -g npm@latest
+          npm publish

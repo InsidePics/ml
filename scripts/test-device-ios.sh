@@ -70,4 +70,6 @@ printf '{"sha": "%s", "dirty": %s, "passed": %s, "device": "%s", "suites": {%s}}
   "$sha" "$([ "$dirty" = 0 ] && echo false || echo true)" \
   "$([ $status = 0 ] && echo true || echo false)" "$udid" "$joined" > "$out"
 echo "Result: $out"
+[ $status != 0 ] || [ "$out" != "$results/ios-$sha.json" ] ||
+  bash "$root/scripts/report-device-results.sh" ios "$sha" || true
 exit $status
