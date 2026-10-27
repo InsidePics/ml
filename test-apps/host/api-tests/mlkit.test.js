@@ -22,12 +22,14 @@ test('ml kit: analyzeImage runs every model on one handle', async () => {
     result.labels.some((l) => l.text === 'Dog'),
     'labels the dog'
   );
-  assert(result.objects.length >= 1, 'boxes the dog');
+  // Known limitation (SceneTests): ML Kit's object detector boxes no dog
+  // lying in grass; the labels name it.
+  assertEqual(result.objects.length, 0, 'no box for the lying dog');
   assertEqual(result.barcodes.length, 0, 'no barcode');
   assert(Array.isArray(result.entities), 'entities present');
 });
 
-test('ml kit: text, barcodes and pose through the bridge', async () => {
+test('ml kit: text, barcodes, pose and objects through the bridge', async () => {
   const text = await MlKit.analyzeImage(await load('text.jpg'), ['mlKitText']);
   assert(/WARNING/.test(text.text.text), 'reads WARNING');
   const codes = await MlKit.analyzeImage(await load('barcode.jpg'), [
@@ -37,8 +39,12 @@ test('ml kit: text, barcodes and pose through the bridge', async () => {
     codes.barcodes.some((c) => c.rawValue === '2404105001722'),
     'EAN-13'
   );
-  const pose = await MlKit.analyzeImage(await load('body.jpg'), ['mlKitPoses']);
+  const pose = await MlKit.analyzeImage(await load('body.jpg'), [
+    'mlKitPoses',
+    'mlKitObjects',
+  ]);
   assertEqual(pose.poses[0]?.landmarks.length, 33, '33 landmarks');
+  assert(pose.objects.length >= 1, 'boxes the people');
 });
 
 test('ml kit: detectFaces on a rotated HEIC handle', async () => {

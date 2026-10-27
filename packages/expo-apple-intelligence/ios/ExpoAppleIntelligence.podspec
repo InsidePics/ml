@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
     :osx => '13.0'
   }
   s.swift_version  = '5.9'
-  s.source         = { :git => 'https://github.com/InsidePics/expo-apple-intelligence.git', :tag => "#{s.version}" }
+  s.source         = { :git => 'https://github.com/InsidePics/ml.git', :tag => "expo-apple-intelligence@#{s.version}" }
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'

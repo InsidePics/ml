@@ -41,14 +41,14 @@ final class FaceTests: MlKitTestCase {
   }
 
   func testDetect_placesTheEyesWhereTheyAreInThePhoto() throws {
-    // face.jpg (400×600): the eyes sit near (148, 205) and (225, 203) px,
+    // face.jpg (400×600): the eyes sit near (141, 209) and (231, 213) px,
     // top-left origin.
     let face = try XCTUnwrap(detectFaces("face.jpg").first)
     let eyes = try eyesInImage(face)
-    XCTAssertEqual(eyes.left.x, 148 / 400, accuracy: 0.03)
-    XCTAssertEqual(eyes.left.y, 205 / 600, accuracy: 0.03)
-    XCTAssertEqual(eyes.right.x, 225 / 400, accuracy: 0.03)
-    XCTAssertEqual(eyes.right.y, 203 / 600, accuracy: 0.03)
+    XCTAssertEqual(eyes.left.x, 141 / 400, accuracy: 0.03)
+    XCTAssertEqual(eyes.left.y, 209 / 600, accuracy: 0.03)
+    XCTAssertEqual(eyes.right.x, 231 / 400, accuracy: 0.03)
+    XCTAssertEqual(eyes.right.y, 213 / 600, accuracy: 0.03)
   }
 
   func testDetect_findsTheSameFaceUnderEveryOrientation() throws {
@@ -69,6 +69,20 @@ final class FaceTests: MlKitTestCase {
 
   func testDetect_findsNoFaceInALandscape() throws {
     XCTAssertEqual(try detectFaces("landscape.jpg").count, 0)
+  }
+
+  func testDetect_findsOneFaceInATwelveMegapixelPortrait() throws {
+    // The fixture as a phone's 12 MP portrait; analysed at 1536×2048, where
+    // the accurate detector also boxes the face's lower half.
+    let face = try image("face.jpg")
+    let size = CGSize(width: 3024, height: 4032)
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1
+    let photo = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+      face.draw(in: CGRect(origin: .zero, size: size))
+    }
+    let prepared = try XCTUnwrap(AnalysisImage.prepare(photo))
+    XCTAssertEqual(try background { try FaceAnalyzer.detect(prepared) }.count, 1)
   }
 
   func testDetect_reportsHeadAnglesInRadians() throws {

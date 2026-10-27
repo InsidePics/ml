@@ -166,18 +166,13 @@ All result types (`FaceObservation`, `TextObservation`, `ImageAnalysisResult`, `
 
 ## Contributing
 
-```sh
-git clone https://github.com/InsidePics/expo-apple-intelligence.git
-cd expo-apple-intelligence
-
-pnpm install   # install dependencies
-pnpm build     # compile the TypeScript module
-
-# run the example app (open the iOS project)
-pnpm open:ios
-```
-
-The native Swift sources live in `ios/` (`ExpoAppleIntelligenceModule.swift`, `VisionHelpers.swift`, `VisionModern.swift`, `VisionProcessors.swift`); the TypeScript surface lives in `src/`. Keep the `@available` gates in the Swift code and the documented minimum-OS values in this README in sync when adding capabilities.
+This package lives in [InsidePics/ml](https://github.com/InsidePics/ml),
+beside `@insidepics/expo-ml-kit` and `@insidepics/expo-image-ml-tools`
+(0.1.0–0.3.1 were published from the archived
+`InsidePics/expo-apple-intelligence`). See that repository's README for the
+gate, the device suites and releasing. The native Swift sources live in
+`ios/`, the TypeScript surface in `src/`; keep the `@available` gates in the
+Swift code and the minimum-OS values in this README in sync.
 
 ## License
 
