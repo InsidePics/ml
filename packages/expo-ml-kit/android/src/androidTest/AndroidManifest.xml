@@ -1,6 +1,0 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-  <application>
-    <!-- The activity the scanner suites open Google's screens over. -->
-    <activity android:name="androidx.activity.ComponentActivity" android:exported="false" />
-  </application>
-</manifest>

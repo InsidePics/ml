@@ -1,6 +1,5 @@
 package expo.modules.mlkit
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import com.google.mlkit.vision.common.InputImage
@@ -79,9 +78,7 @@ object MlKitCalls {
 
 /**
  * The running module, for the features that need more than an image: an
- * application context for a client (GenAI, Play services modules), or the
- * current activity for a screen of Google's (the scanners). Read at call
- * time, never kept: the activity changes under a running app.
+ * application context for a client (GenAI). Read at call time, never kept.
  */
 object MlKitHost {
   @Volatile internal var module: Module? = null
@@ -89,10 +86,4 @@ object MlKitHost {
   val context: Context
     get() = module?.appContext?.reactContext?.applicationContext
       ?: throw CodedException("ERR_ML_KIT", "The ML Kit module is not running", null)
-
-  /** The activity a scanner screen opens over; none while the app is in the
-   *  background. */
-  val activity: Activity
-    get() = module?.appContext?.currentActivity
-      ?: throw CodedException("ERR_ML_KIT_NO_ACTIVITY", "No activity in the foreground to open a scanner over", null)
 }

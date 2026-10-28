@@ -13,9 +13,8 @@ const FEATURES = CATALOGUE.features;
  * Models are bundled (they ship in the app), so a result names the model that
  * produced it, except where ML Kit offers no bundled model: entity
  * extraction's, translation's and digital ink's per-language models download
- * at first use, and the `play-services-*` features (subject segmentation, the
- * document and code scanners) and the GenAI ones (Gemini Nano, through
- * AICore) run models Google Play services keeps up to date.
+ * at first use, and the GenAI features run Gemini Nano, which AICore keeps
+ * up to date.
  *
  * The GenAI pins are the newest releases React Native's Kotlin (2.1) can
  * read: `genai-prompt` after 1.0.0-beta2 is built with Kotlin 2.3 and 2.4.
