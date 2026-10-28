@@ -76,3 +76,25 @@ class MlKitTestCase: XCTestCase {
 func loadedImage(_ name: String) throws -> UIImage? {
   UIImage(data: try Data(contentsOf: URL(fileURLWithPath: FixturePaths.path(name))))
 }
+
+/// `image` as an iPhone camera photo decodes: 8-bit Display P3 pixels of
+/// `size`, stored turned a quarter and tagged `.right` to be shown upright
+/// (or, `turned` false, stored upright).
+func wideColourPhoto(_ image: UIImage, size: CGSize, turned: Bool = true) -> UIImage? {
+  let stored = turned ? CGSize(width: size.height, height: size.width) : size
+  guard let space = CGColorSpace(name: CGColorSpace.displayP3),
+    let source = image.cgImage,
+    let ctx = CGContext(
+      data: nil, width: Int(stored.width), height: Int(stored.height), bitsPerComponent: 8,
+      bytesPerRow: 0, space: space, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)
+  else { return nil }
+  if turned {
+    // Turned a quarter anticlockwise; `.right` turns it back.
+    ctx.translateBy(x: stored.width, y: 0)
+    ctx.rotate(by: .pi / 2)
+  }
+  ctx.draw(source, in: CGRect(origin: .zero, size: size))
+  return ctx.makeImage().map {
+    UIImage(cgImage: $0, scale: 1, orientation: turned ? .right : .up)
+  }
+}
