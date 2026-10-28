@@ -1,3 +1,5 @@
 # Written by the tests' record mode (RECORD_FIXTURE=1), byte for byte.
 fixtures/expected/
 packages/*/android/src/test/fixtures/
+# Written by scripts/make-ink-fixture.mjs, byte for byte.
+fixtures/ink-cat.json
