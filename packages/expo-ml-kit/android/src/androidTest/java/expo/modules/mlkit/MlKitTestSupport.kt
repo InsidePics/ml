@@ -22,7 +22,7 @@ fun detectFaces(name: String): List<Json> =
 
 /** `scripts`' reads of `bitmap`, as the module's `recognizeText` returns them. */
 fun recognize(bitmap: Bitmap, scripts: List<String>): List<Json> =
-  AnalysisBitmap.analyze(bitmap) { MlKitAnalyzer.recognize(it, scripts) }
+  AnalysisBitmap.analyze(bitmap) { image -> scripts.map { TextAnalyzer.recognize(image, it) } }
 
 @Suppress("UNCHECKED_CAST")
 fun Any?.json(): Json = this as? Json ?: fail("not an object: $this") as Nothing

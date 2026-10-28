@@ -6,6 +6,8 @@ import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.entityextraction.Entity
 import com.google.mlkit.nl.entityextraction.EntityExtraction
 import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
+import expo.modules.kotlin.Promise
+import expo.modules.kotlin.modules.ModuleDefinitionBuilder
 import java.util.concurrent.TimeUnit
 
 /**
@@ -75,6 +77,17 @@ object EntityAnalyzer {
         val type = TYPES[entity.type] ?: return@mapNotNull null
         mapOf("type" to type, "value" to annotation.annotatedText)
       }
+    }
+  }
+}
+
+object EntitiesFeature : MlKitFeature {
+  override val name = "entities"
+
+  override fun define(module: ModuleDefinitionBuilder) {
+    // No image: the text TS chose, its confident lines only.
+    module.AsyncFunction("extractEntities") { text: String, promise: Promise ->
+      MlKitCalls.onQueue(promise) { EntityAnalyzer.extract(text) }
     }
   }
 }

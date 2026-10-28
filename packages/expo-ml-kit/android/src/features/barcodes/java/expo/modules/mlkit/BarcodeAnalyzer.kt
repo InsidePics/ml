@@ -1,8 +1,12 @@
 package expo.modules.mlkit
 
+import android.graphics.Bitmap
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import expo.modules.kotlin.Promise
+import expo.modules.kotlin.modules.ModuleDefinitionBuilder
+import expo.modules.kotlin.sharedobjects.SharedRef
 
 /** Barcode Scanning, bundled model, every format. */
 object BarcodeAnalyzer {
@@ -37,4 +41,15 @@ object BarcodeAnalyzer {
         "boundingBox" to (box?.normalizedIn(image) ?: Geometry.rect(0.0, 0.0, 0.0, 0.0, 1, 1)),
       )
     }
+}
+
+object BarcodesFeature : MlKitFeature {
+  override val name = "barcodes"
+  override val imageModels = listOf(ImageModel("mlKitBarcodes", "barcodes", BarcodeAnalyzer::scan))
+
+  override fun define(module: ModuleDefinitionBuilder) {
+    module.AsyncFunction("detectBarcodes") { image: SharedRef<Bitmap>, promise: Promise ->
+      MlKitCalls.withImage(image, promise) { BarcodeAnalyzer.scan(it) }
+    }
+  }
 }

@@ -68,3 +68,8 @@ object PoseAnalyzer {
     }))
   }
 }
+
+object PosesFeature : MlKitFeature {
+  override val name = "poses"
+  override val imageModels = listOf(ImageModel("mlKitPoses", "poses", PoseAnalyzer::detect))
+}

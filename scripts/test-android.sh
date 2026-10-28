@@ -42,9 +42,11 @@ out="$results/android-$sha.json"
 # A run of uncommitted code, or of one package, proves no commit.
 [ "$dirty" = 0 ] && [ -z "${ONLY:-}" ] || out="$results/android-$sha-partial.json"
 # JUnit XML from each package's run: every test with its outcome.
-python3 - "$root" "$out" "$sha" "$dirty" "$device" "$status" <<'EOF'
+adb="$ANDROID_HOME/platform-tools/adb"
+model="$("$adb" -s "$device" shell getprop ro.product.model | tr -d '\r'), Android $("$adb" -s "$device" shell getprop ro.build.version.release | tr -d '\r')"
+python3 - "$root" "$out" "$sha" "$dirty" "$device" "$status" "$model" <<'EOF'
 import glob, json, sys, xml.etree.ElementTree as ET
-root, out, sha, dirty, device, status = sys.argv[1:]
+root, out, sha, dirty, device, status, model = sys.argv[1:]
 suites, failed = {}, 0
 for path in sorted(glob.glob(f"{root}/packages/*/android/build/outputs/androidTest-results/connected/**/*.xml", recursive=True)):
     package = path.split("/packages/")[1].split("/")[0]
@@ -61,7 +63,7 @@ for path in sorted(glob.glob(f"{root}/packages/*/android/build/outputs/androidTe
 total = sum(len(cases) for cases in suites.values())
 passed = status == "0" and failed == 0 and total > 0
 print(f"\n{total - failed} of {total} passed")
-json.dump({"sha": sha, "dirty": dirty != "0", "passed": passed, "device": device, "suites": suites},
+json.dump({"sha": sha, "dirty": dirty != "0", "passed": passed, "device": device, "model": model, "suites": suites},
           open(out, "w"), indent=2)
 print(f"Result: {out}")
 sys.exit(0 if passed else 1)

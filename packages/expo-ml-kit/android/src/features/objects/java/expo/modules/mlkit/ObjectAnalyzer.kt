@@ -29,3 +29,8 @@ object ObjectAnalyzer {
       )
     }
 }
+
+object ObjectsFeature : MlKitFeature {
+  override val name = "objects"
+  override val imageModels = listOf(ImageModel("mlKitObjects", "objects", ObjectAnalyzer::detect))
+}

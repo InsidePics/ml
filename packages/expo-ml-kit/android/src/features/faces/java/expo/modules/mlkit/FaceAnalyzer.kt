@@ -1,5 +1,6 @@
 package expo.modules.mlkit
 
+import android.graphics.Bitmap
 import android.graphics.PointF
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -7,6 +8,9 @@ import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.face.FaceLandmark
+import expo.modules.kotlin.Promise
+import expo.modules.kotlin.modules.ModuleDefinitionBuilder
+import expo.modules.kotlin.sharedobjects.SharedRef
 
 /**
  * ML Kit Face Detection, mapped onto Vision's `FaceObservation` by
@@ -76,5 +80,15 @@ object FaceAnalyzer {
         face.getContour(type)?.points?.takeIf { it.isNotEmpty() }?.let { name to it.map(::pt) }
       }.toMap(),
     )
+  }
+}
+
+object FacesFeature : MlKitFeature {
+  override val name = "faces"
+
+  override fun define(module: ModuleDefinitionBuilder) {
+    module.AsyncFunction("detectFaces") { image: SharedRef<Bitmap>, promise: Promise ->
+      MlKitCalls.withImage(image, promise) { FaceAnalyzer.detect(it) }
+    }
   }
 }

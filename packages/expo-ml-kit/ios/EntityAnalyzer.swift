@@ -1,4 +1,4 @@
-#if !targetEnvironment(simulator)
+#if canImport(MLKitEntityExtraction) && !targetEnvironment(simulator)
 import Foundation
 import MLKitCommon
 import MLKitEntityExtraction
@@ -11,6 +11,21 @@ import MLKitEntityExtraction
 enum EntityAnalyzer {
   private static let extractor = EntityExtractor.entityExtractor(
     options: EntityExtractorOptions(modelIdentifier: .english))
+  /// The entity types kept. Payment cards and IBANs are left out, as on
+  /// Android: the numbers are in the OCR text already, and a labelled,
+  /// searchable copy would only make them easier to harvest.
+  static let entityTypes: [EntityType: String] = [
+    .address: "address",
+    .dateTime: "dateTime",
+    .email: "email",
+    .flightNumber: "flightNumber",
+    .ISBN: "isbn",
+    .money: "money",
+    .phone: "phone",
+    .trackingNumber: "trackingNumber",
+    .URL: "url",
+  ]
+
   private static let lock = NSLock()
   /// nil: no download yet or the last one failed; false: one in flight.
   private static var ready: Bool?
@@ -55,7 +70,7 @@ enum EntityAnalyzer {
         let source = text as NSString
         let found = (annotations ?? []).flatMap { annotation in
           annotation.entities.compactMap { entity -> [String: String]? in
-            guard let type = MlKitNames.entityTypes[entity.entityType] else { return nil }
+            guard let type = entityTypes[entity.entityType] else { return nil }
             return ["type": type, "value": source.substring(with: annotation.range)]
           }
         }

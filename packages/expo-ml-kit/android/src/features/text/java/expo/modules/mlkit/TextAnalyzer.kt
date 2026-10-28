@@ -1,5 +1,6 @@
 package expo.modules.mlkit
 
+import android.graphics.Bitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
@@ -8,6 +9,9 @@ import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import expo.modules.kotlin.Promise
+import expo.modules.kotlin.modules.ModuleDefinitionBuilder
+import expo.modules.kotlin.sharedobjects.SharedRef
 
 /**
  * Text Recognition v2, one bundled recognizer per script. Which run, and
@@ -33,5 +37,17 @@ object TextAnalyzer {
       mapOf("text" to block.text, "boundingBox" to box.normalizedIn(image))
     }
     return mapOf("text" to text.text, "blocks" to blocks)
+  }
+}
+
+/** Text recognition: `analyzeImage`'s Latin read, and `recognizeText`. */
+object TextFeature : MlKitFeature {
+  override val name = "text"
+  override val imageModels = listOf(ImageModel("mlKitText", "text") { TextAnalyzer.recognize(it, "latin") })
+
+  override fun define(module: ModuleDefinitionBuilder) {
+    module.AsyncFunction("recognizeText") { image: SharedRef<Bitmap>, scripts: List<String>, promise: Promise ->
+      MlKitCalls.withImage(image, promise) { input -> scripts.map { TextAnalyzer.recognize(input, it) } }
+    }
   }
 }

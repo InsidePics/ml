@@ -13,3 +13,8 @@ object LabelAnalyzer {
       mapOf("text" to it.text, "confidence" to it.confidence.toDouble(), "index" to it.index)
     }
 }
+
+object LabelsFeature : MlKitFeature {
+  override val name = "labels"
+  override val imageModels = listOf(ImageModel("mlKitLabels", "labels", LabelAnalyzer::label))
+}

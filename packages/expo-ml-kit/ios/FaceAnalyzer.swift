@@ -1,4 +1,4 @@
-#if !targetEnvironment(simulator)
+#if canImport(MLKitFaceDetection) && !targetEnvironment(simulator)
 import CoreGraphics
 import Foundation
 import MLKitFaceDetection
