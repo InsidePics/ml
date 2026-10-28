@@ -50,6 +50,19 @@ final class AnalysisImageTests: XCTestCase {
     XCTAssertEqual(image.scale, 1)
   }
 
+  func testPrepare_drawsAWideColourPhotoAsEightBitSRGB() throws {
+    let face = try XCTUnwrap(try loadedImage("face.jpg"))
+    // Drawn (turned and capped), and an upright one at its own size.
+    let turned = try XCTUnwrap(wideColourPhoto(face, size: CGSize(width: 3024, height: 4032)))
+    let upright = try XCTUnwrap(
+      wideColourPhoto(face, size: CGSize(width: 400, height: 600), turned: false))
+    for photo in [turned, upright] {
+      let image = try XCTUnwrap(AnalysisImage.prepare(photo)?.cgImage)
+      XCTAssertEqual(image.bitsPerComponent, 8)
+      XCTAssertEqual(image.colorSpace?.name, CGColorSpace.sRGB)
+    }
+  }
+
   func testCappedSize_neverRoundsAThinImageToNothing() {
     XCTAssertEqual(
       AnalysisImage.cappedSize(CGSize(width: 10000, height: 1)), CGSize(width: 2048, height: 1))

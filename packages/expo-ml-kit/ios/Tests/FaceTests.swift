@@ -85,6 +85,15 @@ final class FaceTests: MlKitTestCase {
     XCTAssertEqual(try background { try FaceAnalyzer.detect(prepared) }.count, 1)
   }
 
+  func testDetect_findsTheFaceInAWideColourPhoto() throws {
+    // An iPhone photo decodes as Display P3; ML Kit reads no face in the
+    // 16-bit extended-range pixels a default redraw of it gives.
+    let photo = try XCTUnwrap(
+      wideColourPhoto(try image("face.jpg"), size: CGSize(width: 3024, height: 4032)))
+    let prepared = try XCTUnwrap(AnalysisImage.prepare(photo))
+    XCTAssertEqual(try background { try FaceAnalyzer.detect(prepared) }.count, 1)
+  }
+
   func testDetect_reportsHeadAnglesInRadians() throws {
     let face = try XCTUnwrap(detectFaces("face.jpg").first)
     for angle in ["roll", "yaw", "pitch"] {

@@ -1,6 +1,6 @@
 {
   "name": "expo-ml-kit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Google ML Kit on-device image analysis (text, labels, barcodes, poses, objects, entities) for Android and iOS, plus ML Kit face detection on Android.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
