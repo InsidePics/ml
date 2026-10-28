@@ -3,10 +3,11 @@ import UIKit
 
 /// A caller's image as ML Kit is handed it: upright (orientation `.up`),
 /// pixel scale 1, its longer side capped at `maxSide`, so ML Kit's frames
-/// come back in pixels of this image (at scale 2 or 3 they would be points).
-/// A handle from expo-image-manipulator is already upright at scale 1 and
-/// passes through untouched; any other orientation, scale or size is drawn
-/// once. Results are normalized, so the cap changes no coordinate.
+/// come back in pixels of this image (at scale 2 or 3 they would be points),
+/// and 8-bit sRGB: in the 16-bit extended-range pixels a default redraw of
+/// an iPhone's Display P3 photo gives, ML Kit finds no face. An upright 8-bit
+/// sRGB image at scale 1 passes through untouched; any other is drawn once.
+/// Results are normalized, so the cap changes no coordinate.
 enum AnalysisImage {
   static let maxSide = 2048
 
@@ -24,16 +25,21 @@ enum AnalysisImage {
     guard let cgImage = image.cgImage else { return nil }
     let pixels = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
     let target = cappedSize(pixels)
-    if image.imageOrientation == .up && target == pixels {
+    if image.imageOrientation == .up && target == pixels && isEightBitSRGB(cgImage) {
       return image.scale == 1 ? image : UIImage(cgImage: cgImage, scale: 1, orientation: .up)
     }
     let format = UIGraphicsImageRendererFormat()
     format.scale = 1
     format.opaque = false
+    format.preferredRange = .standard
     let drawn = UIGraphicsImageRenderer(size: target, format: format).image { _ in
       // UIImage.draw applies the orientation.
       image.draw(in: CGRect(origin: .zero, size: target))
     }
     return drawn.cgImage.map { UIImage(cgImage: $0, scale: 1, orientation: .up) }
+  }
+
+  private static func isEightBitSRGB(_ image: CGImage) -> Bool {
+    image.bitsPerComponent == 8 && image.colorSpace?.name == CGColorSpace.sRGB
   }
 }
