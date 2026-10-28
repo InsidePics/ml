@@ -13,6 +13,8 @@ export * from './artifacts';
 export * from './barcodes';
 export * from './faceMesh';
 export * from './faces';
+export * from './genAi';
+export * from './genAiPrompt';
 export * from './masks';
 export * from './scanners';
 export * from './subjectSegmentation';

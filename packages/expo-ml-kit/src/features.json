@@ -72,5 +72,50 @@
       "com.google.mlkit:vision-common:17.3.0"
     ],
     "ios": []
+  },
+  "genAiSummarization": {
+    "default": false,
+    "shared": "genAi",
+    "android": [
+      "com.google.mlkit:genai-summarization:1.0.0-beta1",
+      "com.google.mlkit:vision-common:17.3.0"
+    ],
+    "ios": []
+  },
+  "genAiProofreading": {
+    "default": false,
+    "shared": "genAi",
+    "android": [
+      "com.google.mlkit:genai-proofreading:1.0.0-beta1",
+      "com.google.mlkit:vision-common:17.3.0"
+    ],
+    "ios": []
+  },
+  "genAiRewriting": {
+    "default": false,
+    "shared": "genAi",
+    "android": [
+      "com.google.mlkit:genai-rewriting:1.0.0-beta1",
+      "com.google.mlkit:vision-common:17.3.0"
+    ],
+    "ios": []
+  },
+  "genAiImageDescription": {
+    "default": false,
+    "shared": "genAi",
+    "android": [
+      "com.google.mlkit:genai-image-description:1.0.0-beta1",
+      "com.google.mlkit:vision-common:17.3.0"
+    ],
+    "ios": []
+  },
+  "genAiPrompt": {
+    "default": false,
+    "shared": "genAi",
+    "android": [
+      "com.google.mlkit:genai-prompt:1.0.0-beta2",
+      "com.google.mlkit:vision-common:17.3.0"
+    ],
+    "ios": []
   }
 }
