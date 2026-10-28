@@ -21,6 +21,14 @@ size shown and saved as an sRGB JPEG.
 | `invoice.jpg`   | [LEGO Store receipt, Rotterdam](<https://commons.wikimedia.org/wiki/File:LEGO_Store_receipt,_Hillegersberg,_Rotterdam_(2023)_02.jpg>)                                           | Donald Trung Quoc Don                          | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)                            | adapted, 640×377 |
 | `qrcode.jpg`    | [Munzee QR Code Sticker](<https://commons.wikimedia.org/wiki/File:Munzee_Scavenger_Hunt_Game_QR_Code_Sticker_-_Spring_Lake_Park_Reserve,_Minnesota_(28519465928).jpg>)          | Tony Webster                                   | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)                                  | adapted, 400×267 |
 
+## Models
+
+- `mobilenet-v1-metadata.tflite`: MobileNet v1 (1.0, 224, quantized), an
+  ImageNet classifier with TensorFlow Lite metadata (labels), the custom-model
+  tests' classifier.
+  [TensorFlow's task library download](https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/image_classification/android/mobilenet_v1_1.0_224_quantized_1_metadata_1.tflite),
+  © Google, [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0). Unchanged.
+
 ## Made here
 
 - `face-orientation-{1,3,6,8}.{jpg,heic}`: `face.jpg` stored turned and

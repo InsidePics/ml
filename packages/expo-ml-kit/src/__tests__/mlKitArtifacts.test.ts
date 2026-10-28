@@ -138,7 +138,16 @@ describe('ML Kit wire names', () => {
       'rightEyebrow',
     ];
     expect(android).toEqual(
-      new Set(['roll', 'yaw', 'pitch', 'landmarks', ...regions])
+      new Set([
+        'roll',
+        'yaw',
+        'pitch',
+        'landmarks',
+        'smilingProbability',
+        'leftEyeOpenProbability',
+        'rightEyeOpenProbability',
+        ...regions,
+      ])
     );
     expect(outKeys(read('ios/FaceAnalyzer.swift'))).toEqual(android);
   });

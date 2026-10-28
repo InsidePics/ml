@@ -1,9 +1,14 @@
 package expo.modules.mlkit
 
+import android.graphics.Bitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.PoseDetector
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import expo.modules.kotlin.Promise
+import expo.modules.kotlin.modules.ModuleDefinitionBuilder
+import expo.modules.kotlin.sharedobjects.SharedRef
 
 /** Pose Detection (base, bundled), single-image mode: one person, 33 points. */
 object PoseAnalyzer {
@@ -50,9 +55,10 @@ object PoseAnalyzer {
     PoseLandmark.RIGHT_FOOT_INDEX to "rightFootIndex",
   )
 
-  /** Zero poses or one; `x`/`z` over the width, `y` over the height. */
-  fun detect(image: InputImage): List<Map<String, Any>> {
-    val landmarks = awaitDetector(detector.process(image)).allPoseLandmarks
+  /** Zero poses or one; `x`/`z` over the width, `y` over the height. The
+   *  accurate model (`posesAccurate`) passes its own detector. */
+  fun detect(image: InputImage, with: PoseDetector = detector): List<Map<String, Any>> {
+    val landmarks = awaitDetector(with.process(image)).allPoseLandmarks
     if (landmarks.isEmpty()) return emptyList()
     val w = image.width.toDouble()
     val h = image.height.toDouble()
@@ -71,5 +77,11 @@ object PoseAnalyzer {
 
 object PosesFeature : MlKitFeature {
   override val name = "poses"
-  override val imageModels = listOf(ImageModel("mlKitPoses", "poses", PoseAnalyzer::detect))
+  override val imageModels = listOf(ImageModel("mlKitPoses", "poses") { PoseAnalyzer.detect(it) })
+
+  override fun define(module: ModuleDefinitionBuilder) {
+    module.AsyncFunction("detectPose") { image: SharedRef<Bitmap>, promise: Promise ->
+      MlKitCalls.withImage(image, promise) { PoseAnalyzer.detect(it) }
+    }
+  }
 }

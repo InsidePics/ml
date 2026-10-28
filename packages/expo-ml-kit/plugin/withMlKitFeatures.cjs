@@ -3,7 +3,7 @@ const {
   withPodfileProperties,
 } = require('expo/config-plugins');
 
-const CATALOG = require('../src/features.json');
+const CATALOG = require('../src/features.json').features;
 
 /** The property both builds read: android/build.gradle from the app's
  *  gradle.properties, ios/ExpoMlKit.podspec from Podfile.properties.json. */
@@ -21,8 +21,8 @@ function resolveFeatures(features) {
     features === undefined
       ? all.filter((name) => CATALOG[name].default)
       : features === 'all'
-        ? all
-        : features;
+      ? all
+      : features;
   if (!Array.isArray(asked)) {
     throw new Error("expo-ml-kit: `features` is 'all' or a list of features");
   }

@@ -4,8 +4,10 @@ import UIKit
 /// Google ML Kit on an Expo image handle (`SharedRef<UIImage>`) on iOS: the
 /// same functions, in the same shapes, Android's `ExpoMlKitModule.kt` serves,
 /// so a caller handles both platforms alike. Only the enabled features'
-/// functions are defined (`MlKitFeatures`); TS reports a call to any other as
-/// a feature the app did not enable, or one Android alone has.
+/// functions are defined (`MlKitFeatures`): each feature's file defines its
+/// own in an extension of this module, listed here under its `canImport`. TS
+/// reports a call to any other as a feature the app did not enable, or one
+/// Android alone has.
 ///
 /// Google ships no Apple Silicon simulator build of ML Kit: on a simulator
 /// the ML Kit code is compiled out (and unlinked by the config plugin), no
@@ -24,40 +26,53 @@ public class ExpoMlKitModule: Module {
     Constant("isAvailable") { Self.isAvailable }
     Constant("features") { MlKitFeatures.enabled }
 
-    #if canImport(MLKitVision) && !targetEnvironment(simulator)
-    AsyncFunction("analyzeImage") { (image: SharedRef<UIImage>, models: [String], promise: Promise) in
-      MlKitCalls.withImage(image, promise) { try MlKitAnalyzer.analyze($0, models: Set(models)) }
-    }
+    #if !targetEnvironment(simulator)
+    #if canImport(MLKitVision)
+    Self.analyzeImage()
     #endif
-
-    #if canImport(MLKitTextRecognition) && !targetEnvironment(simulator)
-    AsyncFunction("recognizeText") { (image: SharedRef<UIImage>, scripts: [String], promise: Promise) in
-      MlKitCalls.withImage(image, promise) { try TextAnalyzer.recognize($0, scripts: scripts) }
-    }
+    #if canImport(MLKitTextRecognition)
+    Self.recognizeText()
     #endif
-
-    #if canImport(MLKitEntityExtraction) && !targetEnvironment(simulator)
-    // No image: the text TS chose, its confident lines only. Nil (unknown)
-    // while the language model is not on the device yet.
-    AsyncFunction("extractEntities") { (text: String, promise: Promise) in
-      MlKitCalls.onQueue(promise) { EntityAnalyzer.extract(text) as Any? ?? NSNull() }
-    }
+    #if canImport(MLKitImageLabeling)
+    Self.labelImage()
     #endif
-
-    #if canImport(MLKitFaceDetection) && !targetEnvironment(simulator)
-    // Vision's `FaceObservation` shape, as Android's `FaceMapping.kt` writes.
-    AsyncFunction("detectFaces") { (image: SharedRef<UIImage>, promise: Promise) in
-      MlKitCalls.withImage(image, promise) { try FaceAnalyzer.detect($0) }
-    }
+    #if canImport(MLKitImageLabelingCustom)
+    Self.labelImageCustom()
     #endif
-
-    #if canImport(MLKitBarcodeScanning) && !targetEnvironment(simulator)
-    AsyncFunction("detectBarcodes") {
-      (image: SharedRef<UIImage>, formats: [String]?, promise: Promise) in
-      MlKitCalls.withImage(image, promise) {
-        try BarcodeAnalyzer.scan(MlKitAnalyzer.visionImage($0), $0.size, formats: formats)
-      }
-    }
+    #if canImport(MLKitObjectDetection)
+    Self.detectObjects()
+    #endif
+    #if canImport(MLKitObjectDetectionCustom)
+    Self.detectObjectsCustom()
+    #endif
+    #if canImport(MLKitBarcodeScanning)
+    Self.detectBarcodes()
+    #endif
+    #if canImport(MLKitPoseDetection)
+    Self.detectPose()
+    #endif
+    #if canImport(MLKitPoseDetectionAccurate)
+    Self.detectPoseAccurate()
+    #endif
+    #if canImport(MLKitFaceDetection)
+    Self.detectFaces()
+    #endif
+    #if canImport(MLKitSegmentationSelfie)
+    Self.segmentSelfie()
+    #endif
+    #if canImport(MLKitEntityExtraction)
+    Self.extractEntities()
+    Self.downloadEntityModel()
+    Self.deleteEntityModel()
+    Self.downloadedEntityModels()
+    #endif
+    #if canImport(MLKitLanguageID)
+    Self.identifyLanguage()
+    Self.identifyPossibleLanguages()
+    #endif
+    #if canImport(MLKitSmartReply)
+    Self.suggestReplies()
+    #endif
     #endif
   }
 }

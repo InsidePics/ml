@@ -53,9 +53,32 @@ enum TextAnalyzer {
     let text = try recognizer.results(in: image)
     return [
       "text": text.text,
-      "blocks": text.blocks.map {
-        ["text": $0.text, "boundingBox": MlKitAnalyzer.rect($0.frame, size)] as [String: Any]
+      "blocks": text.blocks.map { block in
+        var out = part(block.text, block.frame, block.cornerPoints, block.recognizedLanguages, size)
+        out["lines"] = block.lines.map { line in
+          var out = part(line.text, line.frame, line.cornerPoints, line.recognizedLanguages, size)
+          out["elements"] = line.elements.map {
+            part($0.text, $0.frame, $0.cornerPoints, $0.recognizedLanguages, size)
+          }
+          return out
+        }
+        return out
       },
+    ]
+  }
+
+  /// What every level shares (`MlKitTextBlock`'s fields; iOS reads no
+  /// symbols, confidences or angles). "und" (undetermined) languages are
+  /// dropped, as on Android.
+  private static func part(
+    _ text: String, _ frame: CGRect, _ corners: [NSValue], _ languages: [TextRecognizedLanguage],
+    _ size: CGSize
+  ) -> [String: Any] {
+    [
+      "text": text,
+      "boundingBox": MlKitAnalyzer.rect(frame, size),
+      "cornerPoints": corners.map { MlKitAnalyzer.point($0.cgPointValue, size) },
+      "recognizedLanguages": languages.compactMap(\.languageCode).filter { !$0.isEmpty && $0 != "und" },
     ]
   }
 }

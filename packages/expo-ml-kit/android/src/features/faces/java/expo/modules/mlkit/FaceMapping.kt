@@ -38,6 +38,10 @@ object FaceMapping {
     /** ML Kit `FaceContour` names camel-cased (`face`, `leftEyebrowTop`,
      *  `noseBridge`, `upperLipBottom`, ...); present for prominent faces. */
     val contours: Map<String, List<Pt>>,
+    /** Classification, when asked for: 0-1, the eyes the SUBJECT's. */
+    val smiling: Double? = null,
+    val leftEyeOpen: Double? = null,
+    val rightEyeOpen: Double? = null,
   )
 
   /** Points between the two mouth corners `outerLips` carries, so the
@@ -62,6 +66,10 @@ object FaceMapping {
     face.eulerZ?.let { out["roll"] = Math.toRadians(it) }
     face.eulerY?.let { out["yaw"] = Math.toRadians(it) }
     face.eulerX?.let { out["pitch"] = Math.toRadians(it) }
+    face.smiling?.let { out["smilingProbability"] = it }
+    val (imageLeft, imageRight) = eyesOpenImageLeftFirst(face)
+    imageLeft?.let { out["leftEyeOpenProbability"] = it }
+    imageRight?.let { out["rightEyeOpenProbability"] = it }
     if (bw > 0 && bh > 0) {
       val regions = regions(face)
       if (regions.isNotEmpty()) {
@@ -94,6 +102,17 @@ object FaceMapping {
     }
     contourRegions(face.contours, up, out)
     return out
+  }
+
+  /** The eye-open scores, image-left eye first, as the landmarks are named:
+   *  ML Kit scores the subject's eyes, sided here like the eye landmarks
+   *  (across the face's up axis); without them, as an unmirrored photo shows
+   *  a subject, their left eye on the image's right. */
+  fun eyesOpenImageLeftFirst(face: RawFace): Pair<Double?, Double?> {
+    val lm = face.landmarks
+    val up = upAxis(lm["leftEye"], lm["rightEye"], lm["mouthLeft"], lm["mouthRight"], lm["noseBase"])
+    val subjectLeftIsImageLeft = up != null && side(up, lm["leftEye"]!!, lm["rightEye"]!!) <= 0
+    return if (subjectLeftIsImageLeft) face.leftEyeOpen to face.rightEyeOpen else face.rightEyeOpen to face.leftEyeOpen
   }
 
   private fun contourRegions(

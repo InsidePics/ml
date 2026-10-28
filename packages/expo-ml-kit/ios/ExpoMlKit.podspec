@@ -27,10 +27,15 @@ Pod::Spec.new do |s|
   # Google ships no Apple Silicon simulator build of these: the module
   # compiles them out there and reports itself unavailable, and the config
   # plugin (app.plugin.cjs) unlinks them from simulator builds.
-  catalog = JSON.parse(File.read(File.join(__dir__, '..', 'src', 'features.json')))
+  catalogue = JSON.parse(File.read(File.join(__dir__, '..', 'src', 'features.json')))
+  catalog = catalogue['features']
   properties_file = File.join(Pod::Config.instance.installation_root.to_s, 'Podfile.properties.json')
   chosen = File.exist?(properties_file) ? JSON.parse(File.read(properties_file))['expoMlKit.features'] : nil
   features = chosen ? chosen.split(',').map(&:strip).reject(&:empty?) : catalog.select { |_, f| f['default'] }.keys
+  catalogue['core']['ios'].each do |pod|
+    name, version = pod.split(' ', 2)
+    s.dependency name, version
+  end
   features.each do |feature|
     raise "expo-ml-kit: no feature '#{feature}'" unless catalog.key?(feature)
     catalog[feature]['ios'].each do |pod|

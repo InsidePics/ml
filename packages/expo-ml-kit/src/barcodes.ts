@@ -1,8 +1,5 @@
-import type { MlKitRect } from './ExpoMlKit.types';
+import type { MlKitPoint, MlKitRect } from './ExpoMlKit.types';
 import { nativeFunction, type ImageRef } from './ExpoMlKitModule';
-
-/** A point, normalized 0-1 of the upright image, top-left origin. */
-export type MlKitPoint = { x: number; y: number };
 
 /** What ML Kit parsed a code's value as. */
 export type MlKitBarcodeValueType =

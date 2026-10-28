@@ -1,4 +1,6 @@
-import FEATURES from './features.json';
+import CATALOGUE from './features.json';
+
+const FEATURES = CATALOGUE.features;
 
 /**
  * The ML Kit features this module wraps, and the Google releases each links
@@ -23,6 +25,10 @@ export const ML_KIT_ARTIFACTS: Readonly<
 > = FEATURES;
 
 export type MlKitFeature = keyof typeof FEATURES;
+
+/** What the module links whatever the features: the common runtime and
+ *  image type every feature builds on. */
+export const ML_KIT_CORE_ARTIFACTS = CATALOGUE.core;
 
 /** Every feature, in `features.json`'s order. */
 export const ML_KIT_FEATURES = Object.keys(FEATURES) as MlKitFeature[];

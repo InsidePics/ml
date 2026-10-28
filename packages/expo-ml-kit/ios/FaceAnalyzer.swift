@@ -23,15 +23,39 @@ import UIKit
 /// points themselves — across the face's own up axis — not from ML Kit's
 /// names, which are the SUBJECT's left.
 enum FaceAnalyzer {
-  private static let detector: FaceDetector = {
-    let options = FaceDetectorOptions()
-    options.performanceMode = .accurate
-    options.landmarkMode = .all
-    options.contourMode = .all
+  /// `MlKitFaceOptions`, as the detector built for them is cached by.
+  struct Options: Hashable {
+    var fast = false
+    var classify = false
     // Down from 0.1: group photos' small faces, as Vision finds them.
-    options.minFaceSize = 0.05
-    return FaceDetector.faceDetector(options: options)
-  }()
+    var minFaceSize = 0.05
+
+    init() {}
+
+    init(_ map: [String: Any]) {
+      fast = map["performance"] as? String == "fast"
+      classify = map["classify"] as? Bool ?? false
+      minFaceSize = (map["minFaceSize"] as? NSNumber)?.doubleValue ?? 0.05
+    }
+  }
+
+  private static let lock = NSLock()
+  private static var detectors: [Options: FaceDetector] = [:]
+
+  private static func detector(_ options: Options) -> FaceDetector {
+    lock.lock()
+    defer { lock.unlock() }
+    if let found = detectors[options] { return found }
+    let settings = FaceDetectorOptions()
+    settings.performanceMode = options.fast ? .fast : .accurate
+    settings.landmarkMode = .all
+    settings.contourMode = .all
+    settings.classificationMode = options.classify ? .all : .none
+    settings.minFaceSize = CGFloat(options.minFaceSize)
+    let made = FaceDetector.faceDetector(options: settings)
+    detectors[options] = made
+    return made
+  }
 
   private static let landmarkTypes: [(String, FaceLandmarkType)] = [
     ("leftEye", .leftEye),
@@ -57,10 +81,10 @@ enum FaceAnalyzer {
   /// corner lands at index 6 as in Vision's region.
   private static let lipSteps = 6
 
-  static func detect(_ image: UIImage) throws -> [[String: Any]] {
+  static func detect(_ image: UIImage, options: Options = Options()) throws -> [[String: Any]] {
     let w = Double(image.size.width)
     let h = Double(image.size.height)
-    let faces = try detector.results(in: MlKitAnalyzer.visionImage(image))
+    let faces = try detector(options).results(in: MlKitAnalyzer.visionImage(image))
     return FaceBoxes.outermost(faces.map(\.frame)).map { observation(faces[$0], w, h) }
   }
 
@@ -84,6 +108,10 @@ enum FaceAnalyzer {
     if face.hasHeadEulerAngleZ { out["roll"] = radians(face.headEulerAngleZ) }
     if face.hasHeadEulerAngleY { out["yaw"] = radians(face.headEulerAngleY) }
     if face.hasHeadEulerAngleX { out["pitch"] = radians(face.headEulerAngleX) }
+    if face.hasSmilingProbability { out["smilingProbability"] = Double(face.smilingProbability) }
+    let (imageLeft, imageRight) = eyesOpenImageLeftFirst(face)
+    if let imageLeft { out["leftEyeOpenProbability"] = imageLeft }
+    if let imageRight { out["rightEyeOpenProbability"] = imageRight }
     if bw > 0 && bh > 0 {
       let found = regions(face)
       if !found.isEmpty { out["landmarks"] = found.mapValues { $0.map(inBox) } }
@@ -122,6 +150,20 @@ enum FaceAnalyzer {
     }
     contourRegions(c, up, &out)
     return out
+  }
+
+  /// The eye-open scores, image-left eye first, as the landmarks are named:
+  /// ML Kit scores the subject's eyes, sided here like the eye landmarks
+  /// (across the face's up axis); without them, as an unmirrored photo shows
+  /// a subject, their left eye on the image's right.
+  private static func eyesOpenImageLeftFirst(_ face: Face) -> (Double?, Double?) {
+    let left = face.hasLeftEyeOpenProbability ? Double(face.leftEyeOpenProbability) : nil
+    let right = face.hasRightEyeOpenProbability ? Double(face.rightEyeOpenProbability) : nil
+    func at(_ type: FaceLandmarkType) -> CGPoint? { face.landmark(ofType: type).map { pt($0.position) } }
+    guard let eyeA = at(.leftEye), let eyeB = at(.rightEye),
+      let up = upAxis(eyeA, eyeB, at(.mouthLeft), at(.mouthRight), at(.noseBase))
+    else { return (right, left) }
+    return side(up, eyeA, eyeB) <= 0 ? (left, right) : (right, left)
   }
 
   private static func contourRegions(

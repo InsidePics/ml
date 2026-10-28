@@ -20,7 +20,9 @@ for entry in "${pods[@]}"; do
 done
 
 cd "$host"
-[ -d ios ] || CI=1 pnpm exec expo prebuild -p ios --no-install
+# Every run, not only the first: it refreshes the native project in place,
+# so a change to the config plugins (expo-ml-kit's `features`) reaches it.
+CI=1 pnpm exec expo prebuild -p ios --no-install
 
 # From prebuild's Podfile every run, so the edit never stacks. For XCTest
 # (IOS_HOST_MODE=tests, the default), our pods leave autolinking and are

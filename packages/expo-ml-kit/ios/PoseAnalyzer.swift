@@ -50,9 +50,12 @@ enum PoseAnalyzer {
     .rightToe: "rightFootIndex",
   ]
 
-  /// Zero poses or one; `x`/`z` over the width, `y` over the height.
-  static func detect(_ image: VisionImage, _ size: CGSize) throws -> [[String: Any]] {
-    try detector.results(in: image).prefix(1).compactMap { pose in
+  /// Zero poses or one; `x`/`z` over the width, `y` over the height. The
+  /// accurate model (`posesAccurate`) passes its own detector.
+  static func detect(_ image: VisionImage, _ size: CGSize, with: PoseDetector? = nil) throws
+    -> [[String: Any]]
+  {
+    try (with ?? detector).results(in: image).prefix(1).compactMap { pose -> [String: Any]? in
       if pose.landmarks.isEmpty { return nil }
       return [
         "landmarks": pose.landmarks.map { landmark in

@@ -27,6 +27,24 @@ enum MlKitFeatures {
     #if canImport(MLKitFaceDetection)
     names.append("faces")
     #endif
+    #if canImport(MLKitPoseDetectionAccurate)
+    names.append("posesAccurate")
+    #endif
+    #if canImport(MLKitImageLabelingCustom)
+    names.append("customLabels")
+    #endif
+    #if canImport(MLKitObjectDetectionCustom)
+    names.append("customObjects")
+    #endif
+    #if canImport(MLKitSegmentationSelfie)
+    names.append("selfieSegmentation")
+    #endif
+    #if canImport(MLKitLanguageID)
+    names.append("languageId")
+    #endif
+    #if canImport(MLKitSmartReply)
+    names.append("smartReply")
+    #endif
     #endif
     return names
   }()
@@ -53,10 +71,10 @@ extension MlKitFeatures {
     })
     #endif
     #if canImport(MLKitPoseDetection)
-    models.append(ImageModel(id: "mlKitPoses", key: "poses", run: PoseAnalyzer.detect))
+    models.append(ImageModel(id: "mlKitPoses", key: "poses") { try PoseAnalyzer.detect($0, $1) })
     #endif
     #if canImport(MLKitObjectDetection)
-    models.append(ImageModel(id: "mlKitObjects", key: "objects", run: ObjectAnalyzer.detect))
+    models.append(ImageModel(id: "mlKitObjects", key: "objects") { try ObjectAnalyzer.detect($0, $1) })
     #endif
     return models
   }()

@@ -10,7 +10,8 @@ plugins {
 // `src/features.json` names each feature's artifacts; a feature's code
 // (src/features/<name>/java) is compiled only when it is enabled, and
 // `EnabledFeatures.kt`, generated here, lists the enabled ones for the module.
-def mlKitCatalog = new JsonSlurper().parse(file("$projectDir/../src/features.json"))
+def mlKitCatalogue = new JsonSlurper().parse(file("$projectDir/../src/features.json"))
+def mlKitCatalog = mlKitCatalogue.features
 def mlKitFeatures = (findProperty('expoMlKit.features')?.toString()
     ?: mlKitCatalog.findAll { it.value.default }.keySet().join(','))
   .split(',')*.trim().findAll { it }
@@ -55,6 +56,7 @@ android {
 }
 
 dependencies {
+  mlKitCatalogue.core.android.each { implementation it }
   mlKitFeatures.each { feature -> mlKitCatalog[feature].android.each { implementation it } }
 
   androidTestImplementation 'androidx.test:runner:1.6.2'

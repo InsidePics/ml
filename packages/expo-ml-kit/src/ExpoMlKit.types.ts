@@ -64,9 +64,44 @@ export type FaceObservation = {
  *  others only when its read suggests another script (`textQuality.ts`). */
 export type MlKitTextScript = (typeof TEXT_SCRIPTS)[number];
 
-/** Text Recognition v2: the read of the best-fitting bundled recognizer.
- *  `text` holds its lines, newline-separated. */
-export type MlKitTextBlock = { text: string; boundingBox: MlKitRect };
+/** A point, normalized 0-1 of the upright image, top-left origin. */
+export type MlKitPoint = { x: number; y: number };
+
+/** What every level of a text read has: its text, box, corners (clockwise
+ *  from the top-left; tilted text's box is axis-aligned, its corners are
+ *  not) and the BCP-47 languages ML Kit recognized in it. */
+type MlKitTextPart = {
+  text: string;
+  boundingBox: MlKitRect;
+  cornerPoints: MlKitPoint[];
+  recognizedLanguages: string[];
+};
+
+/** A character. Android only: ML Kit iOS reads no deeper than elements. */
+export type MlKitTextSymbol = MlKitTextPart & {
+  confidence: number;
+  angle: number;
+};
+
+/** A word. `confidence` (0-1) and `angle` (degrees, clockwise) are
+ *  Android's; iOS reports neither. */
+export type MlKitTextElement = MlKitTextPart & {
+  confidence?: number;
+  angle?: number;
+  symbols?: MlKitTextSymbol[];
+};
+
+export type MlKitTextLine = MlKitTextPart & {
+  confidence?: number;
+  angle?: number;
+  elements: MlKitTextElement[];
+};
+
+/** A paragraph-like block of lines. */
+export type MlKitTextBlock = MlKitTextPart & { lines: MlKitTextLine[] };
+
+/** Text Recognition v2: one recognizer's read. `text` holds its lines,
+ *  newline-separated. */
 export type MlKitText = { text: string; blocks: MlKitTextBlock[] };
 
 /** Image Labeling (bundled base model) and Object Detection labels. */
@@ -91,10 +126,49 @@ export type MlKitObject = {
   labels: MlKitLabel[];
 };
 
-/** Entity Extraction over the recognized text. `type` is the camel-cased
- *  `Entity.TYPE_*` name (`phone`, `dateTime`, `url`, ...); payment cards and
- *  IBANs are not kept. */
-export type MlKitEntity = { type: string; value: string };
+/** Entity Extraction's types, the camel-cased `Entity.TYPE_*` names. Payment
+ *  cards and IBANs are never returned: the numbers are in the text already,
+ *  and a labelled, searchable copy would only make them easier to harvest. */
+export type MlKitEntityType =
+  | 'address'
+  | 'dateTime'
+  | 'email'
+  | 'flightNumber'
+  | 'isbn'
+  | 'money'
+  | 'phone'
+  | 'trackingNumber'
+  | 'url';
+
+/** One entity in the text: its span (`start`/`end`, UTF-16 offsets, as JS
+ *  indexes strings) and, for the types ML Kit parses, its parsed value. */
+export type MlKitEntity = {
+  type: MlKitEntityType;
+  value: string;
+  start: number;
+  end: number;
+  /** `dateTime`: the instant (ms since the epoch) and how precise it is. */
+  dateTime?: {
+    timestamp: number;
+    granularity:
+      | 'year'
+      | 'month'
+      | 'week'
+      | 'day'
+      | 'hour'
+      | 'minute'
+      | 'second'
+      | 'unknown';
+  };
+  /** `money`: the amount in parts, and the currency as written. */
+  money?: { integerPart: number; fractionalPart: number; currency: string };
+  /** `flightNumber`: IATA airline code and number. */
+  flightNumber?: { airlineCode: string; flightNumber: string };
+  /** `isbn`: the normalized ISBN. */
+  isbn?: string;
+  /** `trackingNumber`: the parcel carrier (camel-cased) and number. */
+  trackingNumber?: { carrier: string; number: string };
+};
 
 /** Everything `analyzeImage` runs, in one pass over one decode. */
 export type MlKitAnalysisResult = {

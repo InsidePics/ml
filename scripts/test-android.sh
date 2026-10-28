@@ -25,7 +25,9 @@ projects=(expo-image-ml-tools expo-ml-kit)
 root="$(cd "$(dirname "$0")/.." && pwd)"
 host="$root/test-apps/host"
 cd "$host"
-[ -d android ] || CI=1 pnpm exec expo prebuild -p android --no-install
+# Every run, not only the first: it refreshes the native project in place,
+# so a change to the config plugins (expo-ml-kit's `features`) reaches it.
+CI=1 pnpm exec expo prebuild -p android --no-install
 
 results="$root/.device-results"
 mkdir -p "$results"

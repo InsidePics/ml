@@ -31,14 +31,20 @@ let payloads = [
   "Hello, ML Kit",
 ]
 
-// AAMVA 2016 (version 08), the subfile's fields only as ML Kit reads them.
-let license = [
-  "@", "\u{1e}\rANSI 636000080002DL00410200ZV02410006DL",
+// AAMVA 2016 (version 08): the header, a one-entry subfile directory, and
+// the DL subfile (its elements separated by LF, ended by CR), whose offset
+// and length the directory states.
+let licenseFields = [
   "DCAC", "DCBNONE", "DCDNONE", "DBA10282030", "DCSDOE", "DACJANE", "DADQ",
   "DBD10282022", "DBB01151990", "DBC2", "DAYBLU", "DAU065 IN", "DAG1 MAIN ST",
   "DAIANYTOWN", "DAJVA", "DAK123450000  ", "DAQT64235789", "DCFDD1234",
-  "DCGUSA", "DDEN", "DDFN", "DDGN\r",
-].joined(separator: "\n")
+  "DCGUSA", "DDEN", "DDFN", "DDGN",
+]
+let licenseSubfile = "DL" + licenseFields.joined(separator: "\n") + "\r"
+let licenseHeader = "@\n\u{1e}\rANSI 636000080001"
+let license =
+  licenseHeader + "DL" + String(format: "%04d%04d", licenseHeader.utf8.count + 10, licenseSubfile.utf8.count)
+  + licenseSubfile
 
 func fail(_ message: String) -> Never {
   FileHandle.standardError.write(Data((message + "\n").utf8))

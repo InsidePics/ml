@@ -6,6 +6,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.face.FaceLandmark
 import expo.modules.kotlin.Promise
@@ -19,16 +20,36 @@ import expo.modules.kotlin.sharedobjects.SharedRef
  * returns for the most prominent faces, fill the other regions best effort.
  */
 object FaceAnalyzer {
-  private val detector by lazy {
-    FaceDetection.getClient(
-      FaceDetectorOptions.Builder()
-        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+  /** `MlKitFaceOptions`, as the detector built for them is cached by. */
+  data class Options(val fast: Boolean = false, val classify: Boolean = false, val minFaceSize: Float = 0.05f) {
+    companion object {
+      fun from(map: Map<String, Any?>) = Options(
+        fast = map["performance"] == "fast",
+        classify = map["classify"] as? Boolean ?: false,
         // Down from 0.1: group photos' small faces, as Vision finds them.
-        .setMinFaceSize(0.05f)
-        .build()
-    )
+        minFaceSize = (map["minFaceSize"] as? Number)?.toFloat() ?: 0.05f,
+      )
+    }
+  }
+
+  private val detectors = mutableMapOf<Options, FaceDetector>()
+
+  private fun detector(options: Options): FaceDetector = synchronized(detectors) {
+    detectors.getOrPut(options) {
+      FaceDetection.getClient(
+        FaceDetectorOptions.Builder()
+          .setPerformanceMode(
+            if (options.fast) FaceDetectorOptions.PERFORMANCE_MODE_FAST else FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE
+          )
+          .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+          .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+          .setClassificationMode(
+            if (options.classify) FaceDetectorOptions.CLASSIFICATION_MODE_ALL else FaceDetectorOptions.CLASSIFICATION_MODE_NONE
+          )
+          .setMinFaceSize(options.minFaceSize)
+          .build()
+      )
+    }
   }
 
   private val LANDMARKS = mapOf(
@@ -51,8 +72,8 @@ object FaceAnalyzer {
     "lowerLipTop" to FaceContour.LOWER_LIP_TOP,
   )
 
-  fun detect(image: InputImage): List<Map<String, Any>> {
-    val faces = awaitDetector(detector.process(image))
+  fun detect(image: InputImage, options: Options = Options()): List<Map<String, Any>> {
+    val faces = awaitDetector(detector(options).process(image))
     val boxes = faces.map {
       with(it.boundingBox) { Geometry.Box(left.toDouble(), top.toDouble(), right.toDouble(), bottom.toDouble()) }
     }
@@ -79,6 +100,9 @@ object FaceAnalyzer {
       contours = CONTOURS.mapNotNull { (name, type) ->
         face.getContour(type)?.points?.takeIf { it.isNotEmpty() }?.let { name to it.map(::pt) }
       }.toMap(),
+      smiling = face.smilingProbability?.toDouble(),
+      leftEyeOpen = face.leftEyeOpenProbability?.toDouble(),
+      rightEyeOpen = face.rightEyeOpenProbability?.toDouble(),
     )
   }
 }
@@ -87,8 +111,9 @@ object FacesFeature : MlKitFeature {
   override val name = "faces"
 
   override fun define(module: ModuleDefinitionBuilder) {
-    module.AsyncFunction("detectFaces") { image: SharedRef<Bitmap>, promise: Promise ->
-      MlKitCalls.withImage(image, promise) { FaceAnalyzer.detect(it) }
+    module.AsyncFunction("detectFaces") { image: SharedRef<Bitmap>, options: Map<String, Any?>, promise: Promise ->
+      val parsed = FaceAnalyzer.Options.from(options)
+      MlKitCalls.withImage(image, promise) { FaceAnalyzer.detect(it, parsed) }
     }
   }
 }

@@ -3,7 +3,6 @@ import type { SharedRef } from 'expo-modules-core/types';
 
 import type {
   MlKitAnalysisResult,
-  MlKitEntity,
   MlKitText,
   MlKitTextScript,
 } from './ExpoMlKit.types';
@@ -22,7 +21,7 @@ type Image = ImageRef;
 export interface ExpoMlKitFunctions {
   /** The linked image models over the one image; text by the Latin
    *  recognizer. A part not asked for is left out. No entities: they are
-   *  found in TS-chosen text (`extractEntities`). */
+   *  found in TS-chosen text (`entities.ts`). */
   analyzeImage(
     image: Image,
     models: readonly string[]
@@ -32,9 +31,6 @@ export interface ExpoMlKitFunctions {
     image: Image,
     scripts: readonly MlKitTextScript[]
   ): Promise<MlKitText[]>;
-  /** Entities in `text`; null while the language model is not on the
-   *  device yet ("unknown", never "none"). */
-  extractEntities(text: string): Promise<MlKitEntity[] | null>;
 }
 
 export type ExpoMlKitNative = Partial<ExpoMlKitFunctions> & {

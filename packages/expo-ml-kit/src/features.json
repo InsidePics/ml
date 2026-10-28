@@ -1,50 +1,92 @@
 {
-  "text": {
-    "default": true,
+  "core": {
     "android": [
-      "com.google.mlkit:text-recognition:16.0.1",
-      "com.google.mlkit:text-recognition-chinese:16.0.1",
-      "com.google.mlkit:text-recognition-devanagari:16.0.1",
-      "com.google.mlkit:text-recognition-japanese:16.0.1",
-      "com.google.mlkit:text-recognition-korean:16.0.1"
+      "com.google.mlkit:common:18.11.0",
+      "com.google.mlkit:vision-common:17.3.0"
     ],
-    "ios": [
-      "MLKitTextRecognition 7.0.0",
-      "MLKitTextRecognitionChinese 6.0.0",
-      "MLKitTextRecognitionDevanagari 6.0.0",
-      "MLKitTextRecognitionJapanese 6.0.0",
-      "MLKitTextRecognitionKorean 6.0.0"
-    ]
+    "ios": []
   },
-  "labels": {
-    "default": true,
-    "android": ["com.google.mlkit:image-labeling:17.0.9"],
-    "ios": ["MLKitImageLabeling 8.0.0"]
-  },
-  "barcodes": {
-    "default": true,
-    "android": ["com.google.mlkit:barcode-scanning:17.3.0"],
-    "ios": ["MLKitBarcodeScanning 8.0.0"]
-  },
-  "poses": {
-    "default": true,
-    "android": ["com.google.mlkit:pose-detection:18.0.0-beta5"],
-    "ios": ["MLKitPoseDetection 1.0.0-beta16"]
-  },
-  "objects": {
-    "default": true,
-    "android": ["com.google.mlkit:object-detection:17.0.2"],
-    "ios": ["MLKitObjectDetection 8.0.0"]
-  },
-  "entities": {
-    "default": true,
-    "requires": ["text"],
-    "android": ["com.google.mlkit:entity-extraction:16.0.0-beta6"],
-    "ios": ["MLKitEntityExtraction 1.0.0-beta15"]
-  },
-  "faces": {
-    "default": true,
-    "android": ["com.google.mlkit:face-detection:16.1.7"],
-    "ios": ["MLKitFaceDetection 8.0.0"]
+  "features": {
+    "text": {
+      "default": true,
+      "android": [
+        "com.google.mlkit:text-recognition:16.0.1",
+        "com.google.mlkit:text-recognition-chinese:16.0.1",
+        "com.google.mlkit:text-recognition-devanagari:16.0.1",
+        "com.google.mlkit:text-recognition-japanese:16.0.1",
+        "com.google.mlkit:text-recognition-korean:16.0.1"
+      ],
+      "ios": [
+        "MLKitTextRecognition 7.0.0",
+        "MLKitTextRecognitionChinese 6.0.0",
+        "MLKitTextRecognitionDevanagari 6.0.0",
+        "MLKitTextRecognitionJapanese 6.0.0",
+        "MLKitTextRecognitionKorean 6.0.0"
+      ]
+    },
+    "labels": {
+      "default": true,
+      "android": ["com.google.mlkit:image-labeling:17.0.9"],
+      "ios": ["MLKitImageLabeling 8.0.0"]
+    },
+    "barcodes": {
+      "default": true,
+      "android": ["com.google.mlkit:barcode-scanning:17.3.0"],
+      "ios": ["MLKitBarcodeScanning 8.0.0"]
+    },
+    "poses": {
+      "default": true,
+      "android": ["com.google.mlkit:pose-detection:18.0.0-beta5"],
+      "ios": ["MLKitPoseDetection 1.0.0-beta16"]
+    },
+    "objects": {
+      "default": true,
+      "android": ["com.google.mlkit:object-detection:17.0.2"],
+      "ios": ["MLKitObjectDetection 8.0.0"]
+    },
+    "entities": {
+      "default": true,
+      "requires": ["text"],
+      "android": ["com.google.mlkit:entity-extraction:16.0.0-beta6"],
+      "ios": ["MLKitEntityExtraction 1.0.0-beta15"]
+    },
+    "faces": {
+      "default": true,
+      "android": ["com.google.mlkit:face-detection:16.1.7"],
+      "ios": ["MLKitFaceDetection 8.0.0"]
+    },
+    "posesAccurate": {
+      "default": false,
+      "requires": ["poses"],
+      "android": ["com.google.mlkit:pose-detection-accurate:18.0.0-beta5"],
+      "ios": ["MLKitPoseDetectionAccurate 1.0.0-beta16"]
+    },
+    "customLabels": {
+      "default": false,
+      "requires": ["labels"],
+      "android": ["com.google.mlkit:image-labeling-custom:17.0.3"],
+      "ios": ["MLKitImageLabelingCustom 8.0.0"]
+    },
+    "customObjects": {
+      "default": false,
+      "requires": ["objects"],
+      "android": ["com.google.mlkit:object-detection-custom:17.0.2"],
+      "ios": ["MLKitObjectDetectionCustom 8.0.0"]
+    },
+    "selfieSegmentation": {
+      "default": false,
+      "android": ["com.google.mlkit:segmentation-selfie:16.0.0-beta6"],
+      "ios": ["MLKitSegmentationSelfie 1.0.0-beta14"]
+    },
+    "languageId": {
+      "default": false,
+      "android": ["com.google.mlkit:language-id:17.0.6"],
+      "ios": ["MLKitLanguageID 9.0.0"]
+    },
+    "smartReply": {
+      "default": false,
+      "android": ["com.google.mlkit:smart-reply:17.0.4"],
+      "ios": ["MLKitSmartReply 8.0.0"]
+    }
   }
 }

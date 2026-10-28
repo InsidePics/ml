@@ -1,6 +1,6 @@
 import type { MlKitAnalysisResult, MlKitText } from './ExpoMlKit.types';
-import type { MlKitFeature } from './artifacts';
 import { hasFeature, nativeFunction, type ImageRef } from './ExpoMlKitModule';
+import type { MlKitFeature } from './artifacts';
 import {
   bestText,
   confidentText,
@@ -11,8 +11,13 @@ import {
 export * from './ExpoMlKit.types';
 export * from './artifacts';
 export * from './barcodes';
+export * from './entities';
 export * from './faces';
+export * from './language';
 export * from './masks';
+export * from './scene';
+export * from './segmentation';
+export * from './text';
 export { MlKitError, type ImageRef } from './ExpoMlKitModule';
 
 /**
