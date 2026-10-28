@@ -52,9 +52,10 @@ public class ExpoMlKitModule: Module {
     #endif
 
     #if canImport(MLKitBarcodeScanning) && !targetEnvironment(simulator)
-    AsyncFunction("detectBarcodes") { (image: SharedRef<UIImage>, promise: Promise) in
+    AsyncFunction("detectBarcodes") {
+      (image: SharedRef<UIImage>, formats: [String]?, promise: Promise) in
       MlKitCalls.withImage(image, promise) {
-        try BarcodeAnalyzer.scan(MlKitAnalyzer.visionImage($0), $0.size)
+        try BarcodeAnalyzer.scan(MlKitAnalyzer.visionImage($0), $0.size, formats: formats)
       }
     }
     #endif

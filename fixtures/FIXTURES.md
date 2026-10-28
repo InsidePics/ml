@@ -26,6 +26,10 @@ size shown and saved as an sRGB JPEG.
 - `face-orientation-{1,3,6,8}.{jpg,heic}`: `face.jpg` stored turned and
   tagged to be shown upright (`swift scripts/make-orientation-fixtures.swift`).
   Same licence as `face.jpg`.
+- `barcode-values.png`, `barcode-license.png`: QR codes of every value type
+  ML Kit parses, and a PDF417 AAMVA licence for a made-up person, drawn by
+  Core Image (`swift scripts/make-barcode-fixtures.swift`, which holds the
+  payloads). Under the repository's licence.
 - `speech.m4a`: macOS `say`, "Hello world. This is a test of on-device speech
   recognition. The quick brown fox jumps over the lazy dog."
 - `expected/model-inputs.json`: what the InsidePics app's former model-input

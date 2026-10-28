@@ -7,7 +7,7 @@ import MLKitVision
 /// Barcode Scanning, bundled model, every format: `analyzeImage`'s part and
 /// `detectBarcodes`, as Android's `BarcodeAnalyzer.kt`.
 enum BarcodeAnalyzer {
-  private static let scanner = BarcodeScanner.barcodeScanner()
+  private static let everyFormat = BarcodeScanner.barcodeScanner()
 
   /// `ML_KIT_BARCODE_FORMATS`; any other format is dropped.
   static let barcodeFormats: [(BarcodeFormat, String)] = [
@@ -30,15 +30,43 @@ enum BarcodeAnalyzer {
     barcodeFormats.first { $0.0 == format }?.1
   }
 
-  static func scan(_ image: VisionImage, _ size: CGSize) throws -> [[String: Any]] {
-    try scanner.results(in: image).compactMap { code in
+  /// The codes in `image`, every format or only `formats` (names from
+  /// `ML_KIT_BARCODE_FORMATS`; fewer formats scan faster).
+  static func scan(_ image: VisionImage, _ size: CGSize, formats: [String]? = nil) throws
+    -> [[String: Any]]
+  {
+    try scanner(formats).results(in: image).compactMap { code -> [String: Any]? in
       guard let format = barcodeFormat(code.format) else { return nil }
-      return [
-        "rawValue": code.rawValue as Any? ?? NSNull(),
-        "format": format,
-        "boundingBox": MlKitAnalyzer.rect(code.frame, size),
-      ]
+      var out = BarcodeValues.fields(code, format: format)
+      out["boundingBox"] = MlKitAnalyzer.rect(code.frame, size)
+      out["cornerPoints"] = (code.cornerPoints ?? []).map {
+        MlKitAnalyzer.point($0.cgPointValue, size)
+      }
+      return out
     }
+  }
+
+  private static let lock = NSLock()
+  private static var scanners: [[String]: BarcodeScanner] = [:]
+
+  private static func scanner(_ formats: [String]?) throws -> BarcodeScanner {
+    guard let formats, !formats.isEmpty else { return everyFormat }
+    let key = formats.sorted()
+    var wanted: BarcodeFormat = []
+    for name in key {
+      guard let format = barcodeFormats.first(where: { $0.1 == name })?.0 else {
+        throw NSError(domain: "ExpoMlKit", code: 1, userInfo: [
+          NSLocalizedDescriptionKey: "Unknown barcode format \(name)",
+        ])
+      }
+      wanted.insert(format)
+    }
+    lock.lock()
+    defer { lock.unlock() }
+    if let found = scanners[key] { return found }
+    let made = BarcodeScanner.barcodeScanner(options: BarcodeScannerOptions(formats: wanted))
+    scanners[key] = made
+    return made
   }
 }
 #endif

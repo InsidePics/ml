@@ -1,6 +1,8 @@
 package expo.modules.mlkit
 
 import android.graphics.Bitmap
+import com.google.mlkit.vision.barcode.BarcodeScanner
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
@@ -10,7 +12,7 @@ import expo.modules.kotlin.sharedobjects.SharedRef
 
 /** Barcode Scanning, bundled model, every format. */
 object BarcodeAnalyzer {
-  private val scanner by lazy { BarcodeScanning.getClient() }
+  private val everyFormat by lazy { BarcodeScanning.getClient() }
 
   /** `Barcode.FORMAT_*` without the prefix: `ML_KIT_BARCODE_FORMATS`. QR's
    *  name contains "QR", which the QR reader matches on. A code in any other
@@ -31,25 +33,44 @@ object BarcodeAnalyzer {
     Barcode.FORMAT_UPC_E to "UPC_E",
   )
 
-  fun scan(image: InputImage): List<Map<String, Any?>> =
-    awaitDetector(scanner.process(image)).mapNotNull { code ->
+  /** The codes in `image`, every format or only `formats` (names from
+   *  `ML_KIT_BARCODE_FORMATS`; fewer formats scan faster). */
+  fun scan(image: InputImage, formats: List<String>? = null): List<Map<String, Any?>> =
+    awaitDetector(scanner(formats).process(image)).mapNotNull { code ->
       val format = FORMATS[code.format] ?: return@mapNotNull null
-      val box = code.boundingBox
-      mapOf(
-        "rawValue" to code.rawValue,
-        "format" to format,
-        "boundingBox" to (box?.normalizedIn(image) ?: Geometry.rect(0.0, 0.0, 0.0, 0.0, 1, 1)),
+      BarcodeValues.fields(code, format) + mapOf(
+        "boundingBox" to (code.boundingBox?.normalizedIn(image) ?: Geometry.rect(0.0, 0.0, 0.0, 0.0, 1, 1)),
+        "cornerPoints" to (code.cornerPoints ?: emptyArray()).map { it.normalizedIn(image) },
       )
     }
+
+  /** `Barcode.FORMAT_*` for a `ML_KIT_BARCODE_FORMATS` name. */
+  fun format(name: String): Int =
+    FORMATS.entries.firstOrNull { it.value == name }?.key ?: throw IllegalArgumentException("Unknown barcode format $name")
+
+  private val scanners = mutableMapOf<List<String>, BarcodeScanner>()
+
+  private fun scanner(formats: List<String>?): BarcodeScanner {
+    if (formats.isNullOrEmpty()) return everyFormat
+    val key = formats.sorted()
+    return synchronized(scanners) {
+      scanners.getOrPut(key) {
+        val codes = key.map(::format)
+        BarcodeScanning.getClient(
+          BarcodeScannerOptions.Builder().setBarcodeFormats(codes.first(), *codes.drop(1).toIntArray()).build()
+        )
+      }
+    }
+  }
 }
 
 object BarcodesFeature : MlKitFeature {
   override val name = "barcodes"
-  override val imageModels = listOf(ImageModel("mlKitBarcodes", "barcodes", BarcodeAnalyzer::scan))
+  override val imageModels = listOf(ImageModel("mlKitBarcodes", "barcodes") { BarcodeAnalyzer.scan(it) })
 
   override fun define(module: ModuleDefinitionBuilder) {
-    module.AsyncFunction("detectBarcodes") { image: SharedRef<Bitmap>, promise: Promise ->
-      MlKitCalls.withImage(image, promise) { BarcodeAnalyzer.scan(it) }
+    module.AsyncFunction("detectBarcodes") { image: SharedRef<Bitmap>, formats: List<String>?, promise: Promise ->
+      MlKitCalls.withImage(image, promise) { BarcodeAnalyzer.scan(it, formats) }
     }
   }
 }

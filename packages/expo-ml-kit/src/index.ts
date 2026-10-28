@@ -12,6 +12,7 @@ export * from './ExpoMlKit.types';
 export * from './artifacts';
 export * from './barcodes';
 export * from './faces';
+export * from './masks';
 export { MlKitError, type ImageRef } from './ExpoMlKitModule';
 
 /**

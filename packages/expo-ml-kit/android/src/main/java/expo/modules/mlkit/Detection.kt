@@ -1,5 +1,6 @@
 package expo.modules.mlkit
 
+import android.graphics.Point
 import android.graphics.Rect
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -19,3 +20,7 @@ fun Rect.normalizedIn(image: InputImage) =
     left.toDouble(), top.toDouble(), right.toDouble(), bottom.toDouble(),
     image.width, image.height,
   )
+
+/** This point normalized to `image`, top-left origin: `MlKitPoint`. */
+fun Point.normalizedIn(image: InputImage) =
+  mapOf("x" to x.toDouble() / image.width, "y" to y.toDouble() / image.height)

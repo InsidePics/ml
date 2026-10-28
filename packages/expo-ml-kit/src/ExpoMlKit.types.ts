@@ -1,3 +1,4 @@
+import type { MlKitBarcode } from './barcodes';
 import type { TEXT_SCRIPTS } from './textQuality';
 
 // --- Geometry ---------------------------------------------------------------
@@ -70,13 +71,6 @@ export type MlKitText = { text: string; blocks: MlKitTextBlock[] };
 
 /** Image Labeling (bundled base model) and Object Detection labels. */
 export type MlKitLabel = { text: string; confidence: number; index: number };
-
-/** Barcode Scanning; `format` is a `ML_KIT_BARCODE_FORMATS` name. */
-export type MlKitBarcode = {
-  rawValue: string | null;
-  format: string;
-  boundingBox: MlKitRect;
-};
 
 /** Pose Detection: one person, 33 landmarks. `type` is the camel-cased
  *  `PoseLandmark` name (`leftShoulder`); `z` is ML Kit's depth, in the

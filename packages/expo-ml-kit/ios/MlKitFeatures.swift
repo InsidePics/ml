@@ -48,7 +48,9 @@ extension MlKitFeatures {
     })
     #endif
     #if canImport(MLKitBarcodeScanning)
-    models.append(ImageModel(id: "mlKitBarcodes", key: "barcodes", run: BarcodeAnalyzer.scan))
+    models.append(ImageModel(id: "mlKitBarcodes", key: "barcodes") {
+      try BarcodeAnalyzer.scan($0, $1)
+    })
     #endif
     #if canImport(MLKitPoseDetection)
     models.append(ImageModel(id: "mlKitPoses", key: "poses", run: PoseAnalyzer.detect))

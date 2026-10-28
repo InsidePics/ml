@@ -39,6 +39,11 @@ enum MlKitAnalyzer {
     ]
   }
 
+  /// A point in image pixels, normalized, top-left origin: `MlKitPoint`.
+  static func point(_ point: CGPoint, _ size: CGSize) -> [String: Double] {
+    ["x": Double(point.x / size.width), "y": Double(point.y / size.height)]
+  }
+
   /// A label as Image Labeling and Object Detection both report it.
   static func label(text: String, confidence: Float, index: Int) -> [String: Any] {
     ["text": text, "confidence": Double(confidence), "index": index]
