@@ -45,6 +45,12 @@ enum MlKitFeatures {
     #if canImport(MLKitSmartReply)
     names.append("smartReply")
     #endif
+    #if canImport(MLKitTranslate)
+    names.append("translate")
+    #endif
+    #if canImport(MLKitDigitalInkRecognition)
+    names.append("digitalInk")
+    #endif
     #endif
     return names
   }()

@@ -160,7 +160,10 @@ export type MlKitEntity = {
       | 'second'
       | 'unknown';
   };
-  /** `money`: the amount in parts, and the currency as written. */
+  /** `money`: the amount in parts, and the currency as written. The parts
+   *  are ML Kit's own, which differ on one point: for "$12.50" Android gives
+   *  `fractionalPart` 50, iOS 5 (it drops trailing zeros). Read `value` where
+   *  that matters. */
   money?: { integerPart: number; fractionalPart: number; currency: string };
   /** `flightNumber`: IATA airline code and number. */
   flightNumber?: { airlineCode: string; flightNumber: string };

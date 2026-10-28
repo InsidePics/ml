@@ -15,7 +15,7 @@ final class EntityTests: MlKitTestCase {
     Call +1 650-253-0000 or write to info@example.com.
     Visit https://example.com before March 3, 2027 at 10am.
     1600 Amphitheatre Parkway, Mountain View, CA 94043
-    It costs $12.50 on flight LX 38, tracked as 1Z204E380338943508.
+    It costs $12.75 on flight LX 38, tracked as 1Z204E380338943508.
     """
 
   func testExtract_findsEachKindKeptWithItsSpan() throws {
@@ -36,7 +36,7 @@ final class EntityTests: MlKitTestCase {
     let byType = Dictionary(try extractOnceReady(text).map { ($0["type"] as? String ?? "", $0) }) { a, _ in a }
     let money = try XCTUnwrap(byType["money"]?["money"] as? [String: Any])
     XCTAssertEqual(money["integerPart"] as? Int, 12)
-    XCTAssertEqual(money["fractionalPart"] as? Int, 50)
+    XCTAssertEqual(money["fractionalPart"] as? Int, 75)
     let flight = try XCTUnwrap(byType["flightNumber"]?["flightNumber"] as? [String: Any])
     XCTAssertEqual(flight["airlineCode"] as? String, "LX")
     XCTAssertEqual(flight["flightNumber"] as? String, "38")

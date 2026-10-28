@@ -38,6 +38,8 @@ size shown and saved as an sRGB JPEG.
   ML Kit parses, and a PDF417 AAMVA licence for a made-up person, drawn by
   Core Image (`swift scripts/make-barcode-fixtures.swift`, which holds the
   payloads). Under the repository's licence.
+- `ink-cat.json`: the word "cat" as handwritten strokes, drawn from arcs and
+  lines (`node scripts/make-ink-fixture.mjs`). Under the repository's licence.
 - `speech.m4a`: macOS `say`, "Hello world. This is a test of on-device speech
   recognition. The quick brown fox jumps over the lazy dog."
 - `expected/model-inputs.json`: what the InsidePics app's former model-input

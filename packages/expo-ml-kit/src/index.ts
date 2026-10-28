@@ -13,11 +13,13 @@ export * from './artifacts';
 export * from './barcodes';
 export * from './entities';
 export * from './faces';
+export * from './ink';
 export * from './language';
 export * from './masks';
 export * from './scene';
 export * from './segmentation';
 export * from './text';
+export * from './translate';
 export { MlKitError, type ImageRef } from './ExpoMlKitModule';
 
 /**

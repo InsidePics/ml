@@ -73,6 +73,18 @@ public class ExpoMlKitModule: Module {
     #if canImport(MLKitSmartReply)
     Self.suggestReplies()
     #endif
+    #if canImport(MLKitTranslate)
+    Self.translate()
+    Self.downloadTranslationModel()
+    Self.deleteTranslationModel()
+    Self.downloadedTranslationModels()
+    #endif
+    #if canImport(MLKitDigitalInkRecognition)
+    Self.recognizeInk()
+    Self.downloadInkModel()
+    Self.deleteInkModel()
+    Self.isInkModelDownloaded()
+    #endif
     #endif
   }
 }

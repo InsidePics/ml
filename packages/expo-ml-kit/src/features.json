@@ -87,6 +87,16 @@
       "default": false,
       "android": ["com.google.mlkit:smart-reply:17.0.4"],
       "ios": ["MLKitSmartReply 8.0.0"]
+    },
+    "translate": {
+      "default": false,
+      "android": ["com.google.mlkit:translate:17.0.3"],
+      "ios": ["MLKitTranslate 8.0.0"]
+    },
+    "digitalInk": {
+      "default": false,
+      "android": ["com.google.mlkit:digital-ink-recognition:19.0.0"],
+      "ios": ["MLKitDigitalInkRecognition 8.0.0"]
     }
   }
 }

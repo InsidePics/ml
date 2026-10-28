@@ -25,7 +25,7 @@ class EntityTests {
     Call +1 650-253-0000 or write to info@example.com.
     Visit https://example.com before March 3, 2027 at 10am.
     1600 Amphitheatre Parkway, Mountain View, CA 94043
-    It costs $12.50 on flight LX 38, tracked as 1Z204E380338943508.
+    It costs $12.75 on flight LX 38, tracked as 1Z204E380338943508.
   """.trimIndent()
 
   @Test fun findsEachKindKeptWithItsSpan() {
@@ -43,7 +43,7 @@ class EntityTests {
     val byType = extractOnceReady(text).associateBy { it["type"] }
     val money = byType["money"]!!["money"].json()
     assertEquals(12, money["integerPart"])
-    assertEquals(50, money["fractionalPart"])
+    assertEquals(75, money["fractionalPart"])
     val flight = byType["flightNumber"]!!["flightNumber"].json()
     assertEquals("LX", flight["airlineCode"])
     assertEquals("38", flight["flightNumber"])
