@@ -67,6 +67,13 @@ class EntityTests {
     assertTrue("$downloaded", "german" in downloaded)
   }
 
+  @Test fun aDownloadSettlesItsPromise() {
+    // As `downloadEntityModel` settles it: the task's null result must
+    // resolve, not fail a non-null check.
+    val download = settle { MlKitCalls.settle(it, EntityAnalyzer.download("en", wifiOnly = false)) { null } }
+    assertEquals(null, download.resolved(seconds = downloadTimeoutMs / 1000))
+  }
+
   @Test fun findsNothingInPlainWords() {
     assertEquals(0, extractOnceReady("A quiet afternoon by the lake").size)
   }

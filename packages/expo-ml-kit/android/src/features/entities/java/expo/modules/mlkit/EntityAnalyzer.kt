@@ -58,11 +58,12 @@ object EntityAnalyzer {
   }
 
   /** Each language's download, started once and again only after one fails. */
-  private val downloads = mutableMapOf<String, Task<Void>>()
+  private val downloads = mutableMapOf<String, Task<Void?>>()
 
   /** `language`'s model download (Wi-Fi only unless `wifiOnly` is false),
-   *  the one in flight if there is one. */
-  fun download(language: String, wifiOnly: Boolean = true): Task<Void> = synchronized(downloads) {
+   *  the one in flight if there is one. `Void?`: the task's result is null,
+   *  and a Kotlin `Void` would fail [MlKitCalls.settle]'s null check. */
+  fun download(language: String, wifiOnly: Boolean = true): Task<Void?> = synchronized(downloads) {
     val running = downloads[language]
     if (running != null && !(running.isComplete && !running.isSuccessful)) return running
     val conditions = DownloadConditions.Builder().apply { if (wifiOnly) requireWifi() }.build()
