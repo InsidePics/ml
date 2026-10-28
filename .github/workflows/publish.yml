@@ -3,10 +3,15 @@
 #   git tag expo-ml-kit@0.2.0 <sha> && git push origin expo-ml-kit@0.2.0
 #
 # The tag names the directory under packages/ and the version in its
-# package.json. The tagged commit must be on main, pass the gate, and carry
-# passing device runs from both platforms (`device/ios` and `device/android`,
-# posted by scripts/report-device-results.sh). npm trusts this workflow
-# (trusted publishing): no token, provenance attached.
+# package.json; the tagged commit must be on main and pass the gate. Device
+# runs are required only for native code the release changes since the
+# package's previous tag (all of it for a package's first tag):
+# - packages/<dir>/android: the Android suites, run here on an emulator;
+# - packages/<dir>/ios of expo-ml-kit or expo-apple-ml: a passing iPhone run
+#   on the commit (`device/ios`, posted by `pnpm test:device:ios`; no cloud
+#   runs ML Kit or Apple's models on an iPhone). expo-image-ml-tools' iOS
+#   code is covered by the gate's macOS run.
+# npm trusts this workflow (trusted publishing): no token, provenance attached.
 name: Publish
 
 on:
@@ -16,34 +21,67 @@ on:
 permissions:
   contents: read
   statuses: read
-  id-token: write
 
 jobs:
-  publish:
-    runs-on: macos-26
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      dir: ${{ steps.release.outputs.dir }}
+      android: ${{ steps.release.outputs.android }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Tag, version, main and device runs agree
+      - name: Tag, version, main, and the native code it changes
+        id: release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          tag="${GITHUB_REF_NAME}"
-          dir="${tag%@*}"
-          version="${tag##*@}"
-          [ -f "packages/$dir/package.json" ] || { echo "no packages/$dir"; exit 1; }
-          actual="$(node -p "require('./packages/$dir/package.json').version")"
-          [ "$actual" = "$version" ] || { echo "tag $version, package.json $actual"; exit 1; }
-          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "$GITHUB_SHA is not on main"; exit 1; }
-          for platform in ios android; do
-            state="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/statuses" \
-              --jq "[.[] | select(.context == \"device/$platform\")][0].state")"
-            [ "$state" = success ] || { echo "device/$platform: ${state:-missing} on $GITHUB_SHA"; exit 1; }
-          done
-          echo "DIR=$dir" >> "$GITHUB_ENV"
+        run: bash scripts/release-check.sh "$GITHUB_REF_NAME" "$GITHUB_SHA"
 
+  android:
+    needs: check
+    if: needs.check.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Hardware acceleration for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - run: pnpm install --frozen-lockfile
+      - name: Every package's instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: ONLY="${{ needs.check.outputs.dir }}" pnpm test:android
+
+  publish:
+    needs: [check, android]
+    if: always() && needs.check.result == 'success' && (needs.android.result == 'success' || needs.android.result == 'skipped')
+    runs-on: macos-26
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -60,7 +98,7 @@ jobs:
       - run: pnpm gate
 
       - name: Build and publish
-        working-directory: packages/${{ env.DIR }}
+        working-directory: packages/${{ needs.check.outputs.dir }}
         env:
           CI: 1
         run: |

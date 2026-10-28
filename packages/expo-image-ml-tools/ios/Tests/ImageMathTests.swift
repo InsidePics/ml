@@ -50,7 +50,11 @@ final class ImageMathTests: XCTestCase {
     #if !os(macOS)
     throw XCTSkip("The fixture reference was decoded on macOS; HandleTests covers iOS")
     #else
-    for (name, want) in expected.fixtures {
+    // The JPEGs: ImageIO decodes them identically on every Mac. A HEIC's
+    // decode depends on the machine (Apple's hardware HEVC decoder, or the
+    // software one on a virtual Mac such as CI's, 0.23 of 255 apart), so its
+    // pixels are checked within limits by DecodeGridTests instead.
+    for (name, want) in expected.fixtures where !name.hasSuffix(".heic") {
       let cg = try XCTUnwrap(uprightCGImage(name), name)
       let rgba = try XCTUnwrap(Pixels.rgba(cg), name)
       XCTAssertEqual(sha256(Data(rgba.pixels)), want["rgba"] as? String, "\(name) pixels")

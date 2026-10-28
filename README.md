@@ -57,17 +57,22 @@ pushed, push and run `bash scripts/report-device-results.sh <ios|android> <sha>`
 Packages are published to npm by GitHub Actions, never from a laptop:
 
 1. Bump the package's `version` in a PR and merge it to `main`.
-2. Run both device suites on that `main` commit (they post `device/ios` and
-   `device/android`).
+2. Only if the release changes `expo-ml-kit`'s or `expo-apple-ml`'s iOS code
+   since that package's previous tag: run `pnpm test:device:ios` on that
+   `main` commit (it posts `device/ios`). Nothing in the cloud runs ML Kit or
+   Apple's models on an iPhone.
 3. Tag the commit `<package directory>@<version>` and push the tag:
 
    ```sh
    git tag expo-ml-kit@0.2.0 <sha> && git push origin expo-ml-kit@0.2.0
    ```
 
-`.github/workflows/publish.yml` then checks that the tag matches the version,
-that the commit is on `main` and carries both device statuses, runs the gate,
-builds the package and publishes it. npm trusts the workflow (trusted
+`.github/workflows/publish.yml` then checks that the tag matches the version
+and the commit is on `main` (`scripts/release-check.sh`). If the release
+changes the package's Android code, it runs the Android suites on an emulator
+in GitHub Actions; if it changes ML Kit or Apple iOS code, it requires the
+iPhone run. Then it runs the gate (Swift tests on macOS included), builds the
+package and publishes it. npm trusts the workflow (trusted
 publishing), so there is no token, and every version carries provenance: a
 signed link to the commit that built it.
 

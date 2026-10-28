@@ -1,0 +1,30 @@
+# `pnpm gate` on every pull request and on main: lint, format, line limits,
+# types, TypeScript tests, Kotlin on the JVM, and Swift on a GitHub Mac, the
+# same machine `publish.yml` releases from.
+name: Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: brew install kotlin
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gate
