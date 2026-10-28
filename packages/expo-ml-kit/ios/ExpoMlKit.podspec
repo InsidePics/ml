@@ -19,23 +19,30 @@ Pod::Spec.new do |s|
 
   s.dependency 'ExpoModulesCore'
 
-  # BUNDLED ML Kit models only (the model ships in the app), so a result
-  # names the model that produced it. Each pod is pinned to `ML_KIT_ARTIFACTS`
-  # in src/artifacts.ts (the `mlKitArtifacts` test).
+  # The ML Kit features the app enables: `expoMlKit.features` in its
+  # Podfile.properties.json (the config plugin's `features`), else the
+  # defaults. `src/features.json` names each feature's pods; a feature with
+  # none is Android-only. Each feature's Swift compiles only where its pod can
+  # be imported (`#if canImport(...)`), so leaving one out leaves out its code.
   # Google ships no Apple Silicon simulator build of these: the module
   # compiles them out there and reports itself unavailable, and the config
-  # plugin (app.plugin.js) unlinks them from simulator builds.
-  s.dependency 'MLKitTextRecognition', '7.0.0'
-  s.dependency 'MLKitTextRecognitionChinese', '6.0.0'
-  s.dependency 'MLKitTextRecognitionDevanagari', '6.0.0'
-  s.dependency 'MLKitTextRecognitionJapanese', '6.0.0'
-  s.dependency 'MLKitTextRecognitionKorean', '6.0.0'
-  s.dependency 'MLKitImageLabeling', '8.0.0'
-  s.dependency 'MLKitBarcodeScanning', '8.0.0'
-  s.dependency 'MLKitPoseDetection', '1.0.0-beta16'
-  s.dependency 'MLKitObjectDetection', '8.0.0'
-  s.dependency 'MLKitEntityExtraction', '1.0.0-beta15'
-  s.dependency 'MLKitFaceDetection', '8.0.0'
+  # plugin (app.plugin.cjs) unlinks them from simulator builds.
+  catalogue = JSON.parse(File.read(File.join(__dir__, '..', 'src', 'features.json')))
+  catalog = catalogue['features']
+  properties_file = File.join(Pod::Config.instance.installation_root.to_s, 'Podfile.properties.json')
+  chosen = File.exist?(properties_file) ? JSON.parse(File.read(properties_file))['expoMlKit.features'] : nil
+  features = chosen ? chosen.split(',').map(&:strip).reject(&:empty?) : catalog.select { |_, f| f['default'] }.keys
+  catalogue['core']['ios'].each do |pod|
+    name, version = pod.split(' ', 2)
+    s.dependency name, version
+  end
+  features.each do |feature|
+    raise "expo-ml-kit: no feature '#{feature}'" unless catalog.key?(feature)
+    catalog[feature]['ios'].each do |pod|
+      name, version = pod.split(' ', 2)
+      s.dependency name, version
+    end
+  end
 
   s.frameworks = 'ImageIO', 'CoreGraphics', 'UIKit'
 

@@ -1,7 +1,7 @@
 {
   "name": "expo-ml-kit",
   "version": "0.1.2",
-  "description": "Google ML Kit on-device image analysis (text, labels, barcodes, poses, objects, entities) for Android and iOS, plus ML Kit face detection on Android.",
+  "description": "Google ML Kit for Expo: text, labels, barcodes, poses, objects, faces, segmentation, entities, language ID, Smart Reply, translation and digital ink on Android and iOS, plus ML Kit's Android-only features; each opt-in.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -30,9 +30,12 @@
     "ios/*.podspec",
     "android/build.gradle",
     "android/src/main",
+    "android/src/features/*/java",
+    "android/src/shared/*/java",
     "plugin/withMlKitSimulator.cjs",
     "app.plugin.cjs",
     "expo-module.config.json",
+    "plugin/withMlKitFeatures.cjs",
     "plugin/withMlKitMinSdk.cjs",
     "README.md",
     "LICENSE",
@@ -67,6 +70,12 @@
     "object-detection",
     "entity-extraction",
     "face-detection",
-    "machine-learning"
+    "machine-learning",
+    "selfie-segmentation",
+    "language-identification",
+    "smart-reply",
+    "translation",
+    "digital-ink",
+    "handwriting-recognition"
   ]
 }

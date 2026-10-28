@@ -27,9 +27,14 @@ final class TextTests: MlKitTestCase {
   }
 
   func testText_isSkippedWhenNeitherTextNorEntitiesAreAsked() throws {
-    let text = try XCTUnwrap(analyze("text.jpg", ["mlKitLabels"])["text"] as? [String: Any])
-    XCTAssertEqual(text["text"] as? String, "")
-    XCTAssertEqual((text["blocks"] as? [Any])?.count, 0)
+    let result = try analyze("text.jpg", ["mlKitLabels"])
+    XCTAssertNil(result["text"], "TS fills in the parts not asked for")
+    XCTAssertNotNil(result["labels"])
+  }
+
+  func testEntities_runTextRecognition() throws {
+    let text = try XCTUnwrap(analyze("text.jpg", ["mlKitEntities"])["text"] as? [String: Any])
+    XCTAssertFalse((text["text"] as? String ?? "").isEmpty)
   }
 
   func testEveryScript_readsItsOwnWriting() throws {

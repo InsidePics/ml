@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
 import fs from 'fs';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import withMlKitSimulator, {
   applyMlKitSimulatorHook,

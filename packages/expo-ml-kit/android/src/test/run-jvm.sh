@@ -12,6 +12,7 @@
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 MAIN="$DIR/../main/java/expo/modules/mlkit"
+FACES="$DIR/../features/faces/java/expo/modules/mlkit"
 TEST="$DIR/java/expo/modules/mlkit"
 ROOT="$(cd "$DIR/../../../../.." && pwd)"
 source "$ROOT/scripts/lib/kotlin-jvm-test.sh"
@@ -19,7 +20,7 @@ CP="$JVM_TEST_CP"
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
 
-kotlinc "$MAIN/FaceMapping.kt" "$MAIN/Geometry.kt" "$TEST"/*.kt \
+kotlinc "$FACES/FaceMapping.kt" "$MAIN/Geometry.kt" "$TEST"/*.kt \
   -classpath "$CP" -include-runtime -d "$OUT/tests.jar" 2> >(grep -v '^warning' >&2)
 
 java -DfaceFixture="$DIR/fixtures/face.json" -classpath "$OUT/tests.jar:$CP" \

@@ -48,7 +48,7 @@ class MlKitTestCase: XCTestCase {
 
   /// `scripts`' reads of `picture`, as the module's `recognizeText` returns them.
   func recognize(_ picture: UIImage, _ scripts: [String]) throws -> [[String: Any]] {
-    try background { try MlKitAnalyzer.recognize(picture, scripts: scripts) }
+    try background { try TextAnalyzer.recognize(picture, scripts: scripts) }
   }
 
   /// A normalized rect (`x`, `y`, `width`, `height`) inside the unit square.

@@ -17,7 +17,9 @@ package="com.insidepics.mltesthost"
 root="$(cd "$(dirname "$0")/.." && pwd)"
 host="$root/test-apps/host"
 cd "$host"
-[ -d android ] || CI=1 pnpm exec expo prebuild -p android --no-install
+# Every run, not only the first: it refreshes the native project in place,
+# so a change to the config plugins (expo-ml-kit's `features`) reaches it.
+CI=1 pnpm exec expo prebuild -p android --no-install
 
 (cd android && ./gradlew --no-daemon -q assembleRelease)
 "${adb[@]}" install -r android/app/build/outputs/apk/release/app-release.apk > /dev/null

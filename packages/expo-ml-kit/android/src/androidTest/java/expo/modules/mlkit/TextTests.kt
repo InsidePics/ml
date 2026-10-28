@@ -8,6 +8,8 @@ import android.graphics.Typeface
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import insidepics.testsupport.Fixtures
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -38,9 +40,15 @@ class TextTests {
   }
 
   @Test fun textIsSkippedWhenNeitherTextNorEntitiesAreAsked() {
-    val text = analyze("text.jpg", setOf("mlKitLabels"))["text"].json()
-    assertEquals("", text["text"])
-    assertEquals(0, (text["blocks"] as List<*>).size)
+    val result = analyze("text.jpg", setOf("mlKitLabels"))
+    // TS fills in the parts not asked for.
+    assertNull(result["text"])
+    assertNotNull(result["labels"])
+  }
+
+  @Test fun entitiesRunTextRecognition() {
+    val text = analyze("text.jpg", setOf("mlKitEntities"))["text"].json()
+    assertTrue((text["text"] as String).isNotBlank())
   }
 
   @Test fun everyScriptReadsItsOwnWriting() {
