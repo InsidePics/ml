@@ -6,17 +6,25 @@ plugins {
 }
 
 // The ML Kit features the app enables: `expoMlKit.features` in its
-// gradle.properties (the config plugin's `features`), else the defaults.
-// `src/features.json` names each feature's artifacts; a feature's code
-// (src/features/<name>/java) is compiled only when it is enabled, and
+// gradle.properties (the config plugin's `features`), else the defaults,
+// with the features each `requires`. `src/features.json` names each
+// feature's artifacts; a feature's code (src/features/<name>/java) is
+// compiled only when it is enabled, with the code it shares with others
+// (src/shared/<shared>/java: the GenAI features' AICore calls), and
 // `EnabledFeatures.kt`, generated here, lists the enabled ones for the module.
 def mlKitCatalog = new JsonSlurper().parse(file("$projectDir/../src/features.json"))
-def mlKitFeatures = (findProperty('expoMlKit.features')?.toString()
+def mlKitAsked = (findProperty('expoMlKit.features')?.toString()
     ?: mlKitCatalog.findAll { it.value.default }.keySet().join(','))
   .split(',')*.trim().findAll { it }
-mlKitFeatures.each {
-  if (!mlKitCatalog.containsKey(it)) throw new GradleException("expo-ml-kit: no feature '$it'")
+def mlKitChosen = [] as Set
+def mlKitAdd
+mlKitAdd = { String name ->
+  if (!mlKitCatalog.containsKey(name)) throw new GradleException("expo-ml-kit: no feature '$name'")
+  if (mlKitChosen.add(name)) (mlKitCatalog[name].requires ?: []).each { mlKitAdd(it) }
 }
+mlKitAsked.each { mlKitAdd(it) }
+def mlKitFeatures = mlKitCatalog.keySet().findAll { mlKitChosen.contains(it) }
+def mlKitShared = mlKitFeatures.collect { mlKitCatalog[it].shared }.findAll { it }.unique()
 def mlKitGenerated = file("$buildDir/generated/mlkit")
 def mlKitRegistry = file("$mlKitGenerated/expo/modules/mlkit/EnabledFeatures.kt")
 mlKitRegistry.parentFile.mkdirs()
@@ -42,7 +50,8 @@ android {
   // fixtures and test support, neither of which ships.
   sourceSets {
     main {
-      java.srcDirs += [mlKitGenerated] + mlKitFeatures.collect { "src/features/$it/java" }
+      java.srcDirs += [mlKitGenerated] + mlKitFeatures.collect { "src/features/$it/java" } +
+        mlKitShared.collect { "src/shared/$it/java" }
     }
     androidTest {
       assets.srcDirs += "$projectDir/../../../fixtures"

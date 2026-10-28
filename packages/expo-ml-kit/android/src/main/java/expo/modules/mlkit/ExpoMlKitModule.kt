@@ -17,6 +17,7 @@ import expo.modules.kotlin.sharedobjects.SharedRef
 class ExpoMlKitModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("ExpoMlKit")
+    MlKitHost.module = this@ExpoMlKitModule
 
     // Every Android device runs ML Kit.
     Constant("isAvailable") { true }

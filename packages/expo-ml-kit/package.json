@@ -31,6 +31,7 @@
     "android/build.gradle",
     "android/src/main",
     "android/src/features/*/java",
+    "android/src/shared/*/java",
     "plugin/withMlKitSimulator.cjs",
     "app.plugin.cjs",
     "expo-module.config.json",
