@@ -17,7 +17,7 @@ object BarcodeAnalyzer {
   /** `Barcode.FORMAT_*` without the prefix: `ML_KIT_BARCODE_FORMATS`. QR's
    *  name contains "QR", which the QR reader matches on. A code in any other
    *  format is dropped. */
-  private val FORMATS = mapOf(
+  internal val FORMATS = mapOf(
     Barcode.FORMAT_AZTEC to "AZTEC",
     Barcode.FORMAT_CODABAR to "CODABAR",
     Barcode.FORMAT_CODE_39 to "CODE_39",

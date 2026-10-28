@@ -5,7 +5,8 @@ Google ML Kit for Expo and React Native, on Android and iOS: text recognition
 detection, face detection, selfie segmentation, entity extraction, language
 identification, Smart Reply, translation and digital ink recognition, with
 custom TensorFlow Lite models for labeling and object detection. Android also
-gets ML Kit's Android-only features (below).
+gets face mesh, subject segmentation, Google's code and document scanner
+screens, and the GenAI APIs (Gemini Nano).
 
 Every feature is opt-in, so an app links only the models it uses.
 
@@ -58,6 +59,28 @@ iOS simulator builds, for which Google ships none. On a simulator
 | `smartReply`         | `suggestReplies`                                                                                 | bundled                 |
 | `translate`          | `translate`, `downloadTranslationModel`, `deleteTranslationModel`, `downloadedTranslationModels` | downloaded per language |
 | `digitalInk`         | `recognizeInk`, `downloadInkModel`, `deleteInkModel`, `isInkModelDownloaded`                     | downloaded per language |
+
+### Android only
+
+| Feature                 | Calls                                                                                      | Model                |
+| ----------------------- | ------------------------------------------------------------------------------------------ | -------------------- |
+| `faceMesh`              | `detectFaceMesh`: 468 points, triangles, contours                                          | bundled              |
+| `subjectSegmentation`   | `segmentSubjects`, `isSubjectSegmentationModuleReady`, `downloadSubjectSegmentationModule` | Play services module |
+| `codeScanner`           | `scanCode`: Google's scanner screen                                                        | Play services module |
+| `documentScanner`       | `scanDocument`: Google's document scanner screen (pages, PDF)                              | Play services module |
+| `genAiSummarization`    | `summarize`, `getSummarizerStatus`, `downloadSummarizer`                                   | Gemini Nano (AICore) |
+| `genAiProofreading`     | `proofread`, `getProofreaderStatus`, `downloadProofreader`                                 | Gemini Nano (AICore) |
+| `genAiRewriting`        | `rewrite`, `getRewriterStatus`, `downloadRewriter`                                         | Gemini Nano (AICore) |
+| `genAiImageDescription` | `describeImage`, `getImageDescriberStatus`, `downloadImageDescriber`                       | Gemini Nano (AICore) |
+| `genAiPrompt`           | `generateContent`, `getGenerativeModelStatus`, `downloadGenerativeModel`                   | Gemini Nano (AICore) |
+
+The Play services features need Google Play on the device, which downloads
+their modules. The GenAI features run only on devices with AICore (recent
+Pixel and Galaxy flagships); elsewhere their status is `unavailable` and
+calls reject with `ERR_ML_KIT_GENAI_UNAVAILABLE`. `genai-prompt` is pinned
+to 1.0.0-beta2: later releases need a newer Kotlin than React Native's.
+ML Kit's GenAI speech recognition is not included, because its alpha needs
+that newer Kotlin too.
 
 `ML_KIT_ARTIFACTS` lists the Google release each feature links on each
 platform, and `ML_KIT_BARCODE_FORMATS` the barcode format names. If you store

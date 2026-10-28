@@ -17,6 +17,9 @@ const FEATURES = CATALOGUE.features;
  * document and code scanners) and the GenAI ones (Gemini Nano, through
  * AICore) run models Google Play services keeps up to date.
  *
+ * The GenAI pins are the newest releases React Native's Kotlin (2.1) can
+ * read: `genai-prompt` after 1.0.0-beta2 is built with Kotlin 2.3 and 2.4.
+ *
  * A caller that versions stored results bumps its own version when an entry
  * here changes what a feature returns.
  */
