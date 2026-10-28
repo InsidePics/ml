@@ -2,6 +2,7 @@ package expo.modules.mlkit
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -83,7 +84,8 @@ class SceneTests {
   @Test fun analyzeRunsOnlyTheModelsAsked() {
     val result = analyze("animal.jpg", setOf("mlKitLabels"))
     assertTrue(result["labels"].list().isNotEmpty())
-    for (key in listOf("barcodes", "poses", "objects")) assertEquals("$key not run", 0, (result[key] as List<*>).size)
+    // Left out, not empty: TS fills in the parts not asked for.
+    for (key in listOf("text", "barcodes", "poses", "objects")) assertNull("$key not run", result[key])
   }
 
   @Test fun analyzeReportsTheUprightSizeWithEveryModel() {

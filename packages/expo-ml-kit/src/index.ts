@@ -1,13 +1,6 @@
-import type { SharedRef } from 'expo-modules-core/types';
-
-import type {
-  FaceObservation,
-  MlKitAnalysisResult,
-  MlKitBarcode,
-  MlKitText,
-} from './ExpoMlKit.types';
+import type { MlKitAnalysisResult, MlKitText } from './ExpoMlKit.types';
 import type { MlKitFeature } from './artifacts';
-import { hasFeature, nativeFunction } from './ExpoMlKitModule';
+import { hasFeature, nativeFunction, type ImageRef } from './ExpoMlKitModule';
 import {
   bestText,
   confidentText,
@@ -17,11 +10,9 @@ import {
 
 export * from './ExpoMlKit.types';
 export * from './artifacts';
-export { MlKitError } from './ExpoMlKitModule';
-
-/** Any Expo image handle: from expo-image-manipulator, expo-image, or
- *  expo-image-ml-tools' `warp`. */
-export type ImageRef = SharedRef<'image'>;
+export * from './barcodes';
+export * from './faces';
+export { MlKitError, type ImageRef } from './ExpoMlKitModule';
 
 /**
  * Whether ML Kit can run here: the module is linked and its models are (not
@@ -93,17 +84,4 @@ export async function analyzeImage(
     text,
     entities,
   };
-}
-
-/** ML Kit Face Detection, as Apple Vision `FaceObservation`s — the same
- *  shape on Android and iOS, so faces from either detector feed one face
- *  pipeline. Both detectors box one face in one place (the cross-detector
- *  device suite), so a caller can pair them by overlap. */
-export async function detectFaces(image: ImageRef): Promise<FaceObservation[]> {
-  return nativeFunction('detectFaces', 'faces')(image);
-}
-
-/** ML Kit Barcode Scanning alone, without `analyzeImage`'s other parts. */
-export async function detectBarcodes(image: ImageRef): Promise<MlKitBarcode[]> {
-  return nativeFunction('detectBarcodes', 'barcodes')(image);
 }

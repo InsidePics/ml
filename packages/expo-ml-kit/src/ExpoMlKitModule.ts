@@ -2,19 +2,23 @@ import { requireOptionalNativeModule } from 'expo';
 import type { SharedRef } from 'expo-modules-core/types';
 
 import type {
-  FaceObservation,
   MlKitAnalysisResult,
-  MlKitBarcode,
   MlKitEntity,
   MlKitText,
   MlKitTextScript,
 } from './ExpoMlKit.types';
 import { ML_KIT_ARTIFACTS, type MlKitFeature } from './artifacts';
 
-type Image = SharedRef<'image'>;
+/** Any Expo image handle: from expo-image-manipulator, expo-image, or
+ *  expo-image-ml-tools' `warp`. */
+export type ImageRef = SharedRef<'image'>;
+type Image = ImageRef;
 
-/** The native module's functions, each defined only where its feature is
- *  linked; `index.ts` is the typed API. */
+/**
+ * The native module's functions, each defined only where its feature is
+ * linked. Each area's file (`faces.ts`, `barcodes.ts`, ...) declares its own
+ * here, by interface merging, beside the typed calls it exports.
+ */
 export interface ExpoMlKitFunctions {
   /** The linked image models over the one image; text by the Latin
    *  recognizer. A part not asked for is left out. No entities: they are
@@ -31,8 +35,6 @@ export interface ExpoMlKitFunctions {
   /** Entities in `text`; null while the language model is not on the
    *  device yet ("unknown", never "none"). */
   extractEntities(text: string): Promise<MlKitEntity[] | null>;
-  detectFaces(image: Image): Promise<FaceObservation[]>;
-  detectBarcodes(image: Image): Promise<MlKitBarcode[]>;
 }
 
 export type ExpoMlKitNative = Partial<ExpoMlKitFunctions> & {

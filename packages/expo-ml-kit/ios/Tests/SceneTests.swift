@@ -93,8 +93,9 @@ final class SceneTests: MlKitTestCase {
   func testAnalyze_runsOnlyTheModelsAsked() throws {
     let result = try analyze("animal.jpg", ["mlKitLabels"])
     XCTAssertFalse((result["labels"] as? [Any] ?? []).isEmpty)
-    for key in ["barcodes", "poses", "objects"] {
-      XCTAssertEqual((result[key] as? [Any])?.count, 0, "\(key) not run")
+    // Left out, not empty: TS fills in the parts not asked for.
+    for key in ["text", "barcodes", "poses", "objects"] {
+      XCTAssertNil(result[key], "\(key) not run")
     }
   }
 
