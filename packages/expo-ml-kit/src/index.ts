@@ -11,8 +11,11 @@ import {
 export * from './ExpoMlKit.types';
 export * from './artifacts';
 export * from './barcodes';
+export * from './faceMesh';
 export * from './faces';
 export * from './masks';
+export * from './scanners';
+export * from './subjectSegmentation';
 export { MlKitError, type ImageRef } from './ExpoMlKitModule';
 
 /**

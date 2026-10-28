@@ -15,6 +15,11 @@ import FEATURES from './features.json';
  * document and code scanners) and the GenAI ones (Gemini Nano, through
  * AICore) run models Google Play services keeps up to date.
  *
+ * The module's own image path (`analyzeImage`'s decode into an
+ * `InputImage`) needs ML Kit's `vision-common`, which every vision feature's
+ * artifacts bring in; a feature without an image model (the document
+ * scanner) names it itself, so it builds alone.
+ *
  * A caller that versions stored results bumps its own version when an entry
  * here changes what a feature returns.
  */
